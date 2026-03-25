@@ -6,11 +6,11 @@ import os
 load_dotenv()
 User=os.getenv("User")
 Password=os.getenv("Password")
-DB=os.getenv("DB")
+db =os.getenv("DB")
 Host=os.getenv("Host")
 Port=os.getenv("Port")
 
-DATABASE_URL = f"mysql+pymysql://{User}:{Password}@{Host}:{Port}/{DB}"
+DATABASE_URL = f"mysql+pymysql://{User}:{Password}@{Host}:{Port}/{db}"
 
 engine = create_engine(DATABASE_URL)
 
@@ -21,3 +21,6 @@ SessionLocal = sessionmaker(
 )
 
 Base = declarative_base()
+
+import myModels
+Base.metadata.create_all(engine)
