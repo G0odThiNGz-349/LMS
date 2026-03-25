@@ -1,0 +1,9 @@
+SQLAlchemy
+numpy
+pandas
+python-dotenv
+PyMySQL
+pydantic
+fastapi
+uvicorn[standard]
+mysql
