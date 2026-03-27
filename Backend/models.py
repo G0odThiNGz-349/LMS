@@ -1,12 +1,14 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, Enum, DateTime, Date, Text, Boolean, JSON, UniqueConstraint, TIMESTAMP, func
 from sqlalchemy.orm import relationship
-from Database import Base  
+from database import Base  
 import enum
 
 
 class UserRole(enum.Enum):
     student = "student"
     professor = "professor"
+    teaching_assistant = "teaching_assistant"
+    academic_affair = "academic_affair"
     admin = "admin"
     it_staff = "it_staff"
 
@@ -40,11 +42,14 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String(255), unique=True, nullable=False)
+    university_id = Column(String(30), unique=True, nullable=False, index=True)
+    email = Column(String(255), unique=True)
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), nullable=False)
     is_active = Column(Boolean, default=True)
+    login_count = Column(Integer,default=0, nullable=False)
     last_login = Column(TIMESTAMP, nullable=True)
+    last_login_ip = Column(String(255))
     created_at = Column(TIMESTAMP, server_default=func.current_timestamp())
     updated_at = Column(TIMESTAMP, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 
@@ -67,7 +72,6 @@ class Student(Base):
     current_gpa = Column(Numeric(3, 2), default=0.00)
 
     user = relationship("User", back_populates="student")
-
 
 class Professor(Base):
     __tablename__ = "professors"
@@ -97,7 +101,7 @@ class Course(Base):
     __tablename__ = "courses"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    code = Column(String(20), unique=True, nullable=False)
+    code = Column(String(30), unique=True, nullable=False)
     name = Column(String(255), nullable=False)
     description = Column(Text)
     credits = Column(Integer, nullable=False)
