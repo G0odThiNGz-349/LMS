@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from enum import Enum
 from datetime import datetime
 
@@ -26,8 +26,8 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config= ConfigDict(from_attributes=True)
+
 
 class UserSelfUpdate(BaseModel):
     email: EmailStr | None=None
