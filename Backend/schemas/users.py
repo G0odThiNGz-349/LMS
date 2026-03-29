@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
 from enum import Enum
 from datetime import datetime
 
@@ -16,7 +16,7 @@ class UserBase(BaseModel):
     is_active: bool = True
 
 class UserCreate(UserBase):
-    password:str
+    password:str = Field(min_length=8, max_length=128)
 
 class UserResponse(UserBase):
     id: int
@@ -36,4 +36,12 @@ class UserAdminUpdate(BaseModel):
     email: EmailStr | None=None
     role: UserRole | None=None
     is_active: bool | None=None
-    password: str | None=None
+    password: str  | None=None
+
+    @field_validator("password")
+    def validate_password(cls, v):
+        if v is None:
+            return v
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        return v
