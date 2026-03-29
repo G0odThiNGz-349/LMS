@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from typing import Literal
 from enum import Enum
 from datetime import datetime
 
