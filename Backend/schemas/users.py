@@ -31,7 +31,6 @@ class UserResponse(UserBase):
 
 class UserSelfUpdate(BaseModel):
     email: EmailStr | None=None
-    password: str | None=None
 
 class UserAdminUpdate(BaseModel):
     email: EmailStr | None=None
