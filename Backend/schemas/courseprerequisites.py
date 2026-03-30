@@ -2,9 +2,9 @@ from pydantic import BaseModel, ConfigDict
 
 class CoursePrerequisitesResponse(BaseModel):
     course_code: str
-    prerequisite_course_code: str
+    prerequisite_course_code: str | None=None
     course_name: str
-    prerequisite_course_name: str
+    prerequisite_course_name: str | None=None
 
     model_config = ConfigDict(from_attributes=True)
 
