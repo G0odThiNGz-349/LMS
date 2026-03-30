@@ -70,6 +70,8 @@ class Student(Base):
     expected_graduation = Column(Date)          
     academic_year = Column(Enum(AcademicYear))          
     current_gpa = Column(Numeric(3, 2), default=0.00)
+    passed_credits = Column(Integer, default=0)
+    registered_credits = Column(Integer, default=0)
 
     user = relationship("User", back_populates="student")
 
@@ -80,7 +82,6 @@ class Professor(Base):
     full_name = Column(String(255), nullable=False)
     department_id = Column(Integer, ForeignKey("departments.id"))
     hire_date = Column(Date)
-    role= Column(String(30))
 
     user = relationship("User", back_populates="professor")
     department = relationship("Department", back_populates="professors")
@@ -121,7 +122,7 @@ class AcademicSemester(Base):
     __tablename__ = "academic_semesters"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
+    name = Column(String(100), nullable=False)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
     is_current = Column(Boolean, default=False)
@@ -198,39 +199,6 @@ class Resource(Base):
     resource_type = Column(String(50))
     uploaded_by_user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, server_default=func.current_timestamp())
-
-
-class Quiz(Base):
-    __tablename__ = "quizzes"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"))
-    title = Column(String(255), nullable=False)
-    total_marks = Column(Numeric(5, 2))
-    due_date = Column(DateTime)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
-
-
-class QuizSubmission(Base):
-    __tablename__ = "quiz_submissions"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    quiz_id = Column(Integer, ForeignKey("quizzes.id"))
-    student_user_id = Column(Integer, ForeignKey("users.id"))
-    score = Column(Numeric(5, 2))
-    submitted_at = Column(DateTime, server_default=func.current_timestamp())
-
-
-class Message(Base):
-    __tablename__ = "messages"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    topic = Column(String(100), nullable=False)         
-    sender_user_id = Column(Integer, ForeignKey("users.id"))
-    content = Column(Text, nullable=False)
-    sent_at = Column(DateTime, server_default=func.current_timestamp())
-
-    sender = relationship("User")
 
 
 class StudentPerformanceLog(Base):
