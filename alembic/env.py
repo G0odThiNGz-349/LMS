@@ -1,38 +1,33 @@
 from logging.config import fileConfig
-import os
-from dotenv import load_dotenv
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
+from Backend.database import Base
+from Backend.models import *
+import os
+from dotenv import load_dotenv
 
-
-load_dotenv()
-User=os.getenv("User")
-Password=os.getenv("Password")
-db =os.getenv("DB")
-Host=os.getenv("Host")
-Port=os.getenv("Port")
-
-DATABASE_URL = f"mysql+pymysql://{User}:{Password}@{Host}:{Port}/{db}"
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from database import Base
-from models import *
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = Base
+
+
+
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -52,7 +47,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url",)
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -65,22 +60,16 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
+    """Run migrations in 'online' mode."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args={"charset": "utf8mb4"}  # <--- important for MySQL
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
