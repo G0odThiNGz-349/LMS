@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, Enum, DateTime, Date, Text, Boolean, JSON, UniqueConstraint, TIMESTAMP, func
 from sqlalchemy.orm import relationship
-from database import Base  
+from Backend.database import Base  
 import enum
 
 
@@ -149,7 +149,7 @@ class Enrollment(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     student_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
-    grade = Column(Numeric(3, 2))
+    grade = Column(Numeric(4, 2))
     status = Column(Enum(EnrollmentStatus), default=EnrollmentStatus.active)
     enrolled_at = Column(DateTime, server_default=func.current_timestamp())
 
@@ -168,7 +168,7 @@ class Attendance(Base):
     status = Column(Enum(AttendanceStatus), nullable=False)
     recorded_at = Column(DateTime, server_default=func.current_timestamp())
 
-    __table_args__ = (
+    __table_args__ = ( 
         UniqueConstraint('student_user_id', 'course_offering_id', 'session_date'),
     )
 
