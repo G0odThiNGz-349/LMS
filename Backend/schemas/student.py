@@ -64,8 +64,8 @@ class StudentDetailedResponse(StudentBase):
 class StudentResponse(StudentBase):
     user_id: int
     university_id: str
-    gained_credit: int | None=None
-    registered_credit: int | None=None
+    passed_credits: int | None=None
+    registered_credits: int | None=None
 
     model_config = ConfigDict(from_attributes=True)
 
