@@ -13,7 +13,7 @@ class DepartmentUpdate(BaseModel):
 class UserMini(BaseModel):
     id: int
     university_id: str
-    ful_name: str
+    full_name: str
 
     model_config = ConfigDict(from_attributes=True)
 
