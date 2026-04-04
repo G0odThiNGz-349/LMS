@@ -4,13 +4,10 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-User=os.getenv("User")
-Password=os.getenv("Password")
-db =os.getenv("DB")
-Host=os.getenv("Host")
-Port=os.getenv("Port")
+db_url = os.getenv("DATABASE_URL")
 
-DATABASE_URL = f"mysql+pymysql://{User}:{Password}@{Host}:{Port}/{db}"
+DATABASE_URL = db_url
+print(DATABASE_URL)
 
 engine = create_engine(DATABASE_URL)
 
