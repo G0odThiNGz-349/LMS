@@ -2,10 +2,10 @@ from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, Field
 from enum import Enum
 from datetime import date
 from decimal import Decimal
+from typing import Literal
 
 
 class UserRole(str, Enum):
-    student = "student"
     professor = "professor"
     teaching_assistant = "teaching_assistant"
 
@@ -19,7 +19,7 @@ class AcademicYear(str, Enum):
 class CreateUserStudent(BaseModel):
     university_id: str
     email: EmailStr | None=None
-    role: UserRole
+    role: Literal["student"] = "student"
     is_active: bool = True
     password:str = Field(min_length=8, max_length=128)
     full_name: str
@@ -54,7 +54,6 @@ class CreateUserProfessor(BaseModel):
     is_active: bool = True
     password:str = Field(min_length=8, max_length=128)
     full_name: str
-    address: str | None=None
     department_id: str
     hire_date: date
 
