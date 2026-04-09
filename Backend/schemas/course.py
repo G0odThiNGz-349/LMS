@@ -1,12 +1,11 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
-from datetime import date
+from pydantic import BaseModel, ConfigDict
 
 class CourseCreate(BaseModel):
     code: str
     name: str
     description: str | None=None
     credits: int
-    department_id: int
+    department_name: str
 
     model_config = ConfigDict(extra="forbid")
 
@@ -16,7 +15,7 @@ class CourseUpdate(BaseModel):
     name: str | None=None
     description: str | None=None
     credits: int | None=None
-    department_id: int | None=None
+    department_name: str | None=None
 
     model_config = ConfigDict(extra="forbid") 
 
