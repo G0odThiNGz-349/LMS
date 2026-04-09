@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import IntegrityError
 from Backend.models import Student, User, Professor
 from Backend.schemas.combinedCreate import CreateUserStudent, CreateUserProfessor
 
@@ -27,7 +28,11 @@ def create_user_student(db: Session, student: CreateUserStudent ):
     )
 
     db.add(db_student)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("the student already exsists")
     db.refresh(db_student)
 
     return db_student
@@ -47,7 +52,6 @@ def create_user_professor(db: Session, professor: CreateUserProfessor ):
     db_professor = Professor(
         user_id = db_user.id,
         full_name = professor.full_name,
-        department_id = professor.department_id,
         hire_date = professor.hire_date
     )
 
