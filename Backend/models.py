@@ -67,11 +67,12 @@ class Student(Base):
     birth_date = Column(Date, nullable=False)
     address = Column(Text)
     enroll_date = Column(Date, nullable=False)
-    expected_graduation = Column(Date)          
-    academic_year = Column(Enum(AcademicYear))          
+    expected_graduation = Column(Date, nullable=False)          
+    academic_year = Column(Enum(AcademicYear), nullable=False)          
     current_gpa = Column(Numeric(3, 2), default=0.00)
     passed_credits = Column(Integer, default=0)
     registered_credits = Column(Integer, default=0)
+    department = Column(String(30), nullable=True)
 
     user = relationship("User", back_populates="student")
 
@@ -114,6 +115,7 @@ class Course(Base):
 class CoursePrerequisite(Base):
     __tablename__ = "course_prerequisites"
 
+    id = Column(Integer, primary_key=True)
     course_id = Column(Integer, ForeignKey("courses.id"), primary_key=True)
     prerequisite_course_id = Column(Integer, ForeignKey("courses.id"), primary_key=True)
 
@@ -200,14 +202,3 @@ class Resource(Base):
     uploaded_by_user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, server_default=func.current_timestamp())
 
-
-class StudentPerformanceLog(Base):
-    __tablename__ = "student_performance_logs"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    student_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"))
-    event_type = Column(String(50), nullable=False)
-    event_value = Column(Numeric(5, 2))
-    extra_data = Column(JSON)
-    recorded_at = Column(DateTime, server_default=func.current_timestamp())
