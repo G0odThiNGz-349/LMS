@@ -21,13 +21,13 @@ class ExportStudent(BaseModel):
     user_id: int
     full_name: str
     birth_date: date
-    enroll_date: date
-    expected_graduation: date
-    academic_year: AcademicYear
+    enroll_date: date 
+    expected_graduation: date | None = None
+    academic_year: AcademicYear | None = None
     current_gpa: Decimal | None = Field(default=0.00, ge=0, le=4.00)
     passed_credits: int = 0
     registered_credits: int = 0
-    department : str | None=None
+    department_id : int | None=None
 
     class Config:
         from_attributes = True
@@ -65,3 +65,21 @@ class ExportCourseOffering(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ExportDepartment(BaseModel):
+    id: int
+    name: str
+    head_prof_user_id: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class ExportCourse(BaseModel):
+    id: int
+    code: str
+    name: str
+    description: str | None = None
+    credits: int
+    department_id: int | None = None
