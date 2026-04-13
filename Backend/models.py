@@ -63,7 +63,7 @@ class Student(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     full_name = Column(String(255), nullable=False)
     national_id = Column(String(20), unique=True, nullable=False)
-    phone = Column(String(20), nullable=False)
+    phone = Column(String(100), nullable=False)
     birth_date = Column(Date, nullable=False)
     address = Column(Text)
     enroll_date = Column(Date, nullable=False)
@@ -72,9 +72,10 @@ class Student(Base):
     current_gpa = Column(Numeric(3, 2), default=0.00)
     passed_credits = Column(Integer, default=0)
     registered_credits = Column(Integer, default=0)
-    department = Column(String(30), nullable=True)
+    department_id= Column(Integer, ForeignKey("departments.id") , nullable=True)
 
     user = relationship("User", back_populates="student")
+    department = relationship("Department", back_populates="students")
 
 class Professor(Base):
     __tablename__ = "professors"
@@ -97,6 +98,7 @@ class Department(Base):
 
     head_professor = relationship("User", foreign_keys=[head_prof_user_id])
     professors = relationship("Professor", back_populates="department")
+    students = relationship("Student", back_populates="department")
 
 
 class Course(Base):
@@ -115,7 +117,7 @@ class Course(Base):
 class CoursePrerequisite(Base):
     __tablename__ = "course_prerequisites"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer)
     course_id = Column(Integer, ForeignKey("courses.id"), primary_key=True)
     prerequisite_course_id = Column(Integer, ForeignKey("courses.id"), primary_key=True)
 
