@@ -10,3 +10,5 @@ mysql
 alembic
 cryptography
 pydantic[email]
+requests
+pandas
