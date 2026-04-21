@@ -66,7 +66,23 @@ def course_update(db: Session, course_name:str, update: CourseUpdate):
     return db_course
 
 
-def get_course(db: Session, course_name: str):
-    db_course = db.query(Course).filter(Course.name == course_name).first()
 
-    return db.query(Course).filter(Course.name == course_name).first()
+def get_course(db: Session, course_name: str):
+    
+    course = (
+        db.query(Course)
+        .options(joinedload(Course.department))           
+        .filter(Course.name == course_name)
+        .first()
+    )
+
+    if course is None:
+        return None
+
+    return {
+        "code": course.code,
+        "name": course.name,
+        "description": course.description,
+        "credits": course.credits,
+        "department_name": course.department.name
+    }
