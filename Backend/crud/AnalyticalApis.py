@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from Backend.models import Student, Attendance, CourseOffering, Enrollment, Course, Department
+from Backend.models import Student, Attendance, CourseOffering, Enrollment, Course, Department, AcademicSemester, Ticket
 
 def get_students(db: Session, page: int, page_size: int):
     query = db.query(Student)
@@ -24,11 +24,26 @@ def get_enrollments(db: Session, page: int, page_size: int):
     return query.offset((page - 1) * page_size).limit(page_size).all()
 
 
+
 def get_department(db: Session, page: int, page_size: int):
     query = db.query(Department)
     return query.offset((page - 1) * page_size).limit(page_size).all()
 
 
+
 def get_course(db: Session, page: int, page_size: int):
     query = db.query(Course)
     return query.offset((page - 1) * page_size).limit(page_size).all()
+
+
+
+def get_academic_semester(db: Session, page: int, page_size: int):
+    query = db.query(AcademicSemester)
+    return query.offset((page - 1) * page_size).limit(page_size).all()
+
+
+
+def get_tickets(db: Session, page: int, page_size: int):
+    query = db.query(Ticket)
+    return query.offset((page - 1) * page_size).limit(page_size).all()
+
