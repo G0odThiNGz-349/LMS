@@ -83,3 +83,31 @@ class ExportCourse(BaseModel):
     description: str | None = None
     credits: int
     department_id: int | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class ExportAcademicSemester(BaseModel):
+    id: int
+    name: str
+    start_date: date
+    end_date: date
+    is_current: bool
+    
+    class Config:
+        from_attributes = True
+
+
+class ExportTickets(BaseModel):
+    id: int
+    title: str
+    description: str
+    created_by_user_id: int
+    assigned_to_user_id: int
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
