@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from Backend.database import get_db
-from Backend.schemas.AnalyticalAPis import PaginatedResponse, ExportAttendance, ExportStudent, ExportCourseOffering, ExportEnrollment, ExportCourse, ExportDepartment
-from Backend.crud.AnalyticalApis import get_students, get_attendance, get_course_offering, get_enrollments, get_course, get_department
+from Backend.schemas.AnalyticalAPis import PaginatedResponse, ExportAttendance, ExportStudent, ExportCourseOffering, ExportEnrollment, ExportCourse, ExportDepartment, ExportAcademicSemester, ExportTickets
+from Backend.crud.AnalyticalApis import get_students, get_attendance, get_course_offering, get_enrollments, get_course, get_department, get_academic_semester, get_tickets
 
 
 
@@ -93,4 +93,33 @@ def list_departments(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1
         "page": page,
         "page_size": page_size,
         "data": department
+    }
+
+
+
+academic_semester_router = APIRouter(prefix="/academic_semester", tags=["AcademicSemester"])
+
+@academic_semester_router.get("/", response_model=PaginatedResponse[ExportAcademicSemester])
+def list_academic_semester(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=100), db: Session = Depends(get_db)):
+    academic_semester = get_academic_semester(db, page, page_size)
+
+    return {
+        "page": page,
+        "page_size": page_size,
+        "data": academic_semester
+    }
+
+
+
+
+tickets_router = APIRouter(prefix="/tickets", tags=["Tickets"])
+
+@tickets_router.get("/", response_model=PaginatedResponse[ExportTickets])
+def list_tickets(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=100), db: Session = Depends(get_db)):
+    tickets = get_tickets(db, page, page_size)
+
+    return {
+        "page": page,
+        "page_size": page_size,
+        "data": tickets
     }
