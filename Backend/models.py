@@ -204,3 +204,12 @@ class Resource(Base):
     uploaded_by_user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, server_default=func.current_timestamp())
 
+
+class StudentPerformance(Base):
+    __tablename__ = "student_performance"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    response = Column(String(10))
+    measured_at = Column(DateTime, server_default=func.current_timestamp())
+
