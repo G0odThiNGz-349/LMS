@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from Backend.models import Course, CoursePrerequisite
-from Backend.schemas.courseprerequisites import CoursePrerequisitesCreate, CoursePrerequisitesUpdate
+from Backend.schemas.coursePrerequisites import CoursePrerequisitesCreate, CoursePrerequisitesUpdate
 from fastapi import HTTPException
 
 def create_course_prerequisite(db: Session, course: CoursePrerequisitesCreate):
