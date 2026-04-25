@@ -15,7 +15,7 @@ def create_course_endpoint(data: CourseCreate, db: Session = Depends(get_db)):
     return course
 
 
-@router.put("/{course_name}", response_model=CourseResponse)
+@router.patch("/{course_name}", response_model=CourseResponse)
 def update_department(course_name: str, data: CourseUpdate, db: Session = Depends(get_db)):
     course = crud.update_department(db, course_name, data)
 

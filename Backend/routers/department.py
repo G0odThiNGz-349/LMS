@@ -15,7 +15,7 @@ def create_department_endpoint(data: DepartmentCreate, db: Session = Depends(get
     return department
 
 
-@router.put("/{department_name}", response_model=DepartmentDetailedResponse)
+@router.patch("/{department_name}", response_model=DepartmentDetailedResponse)
 def update_department(department_name: str, data: DepartmentUpdate, db: Session = Depends(get_db)):
     department = crud.update_department(db, department_name, data)
 
