@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, Enum, DateTime, Date, Text, Boolean, JSON, UniqueConstraint, TIMESTAMP, func
+from sqlalchemy import Column, Integer, String, ForeignKey, Numeric, Enum, DateTime, Date, Text, Boolean, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 from Backend.database import Base  
 import enum
@@ -48,10 +48,10 @@ class User(Base):
     role = Column(Enum(UserRole), nullable=False)
     is_active = Column(Boolean, default=True)
     login_count = Column(Integer,default=0, nullable=False)
-    last_login = Column(TIMESTAMP, nullable=True)
+    last_login = Column(DateTime, nullable=True)
     last_login_ip = Column(String(255))
-    created_at = Column(TIMESTAMP, server_default=func.current_timestamp())
-    updated_at = Column(TIMESTAMP, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     student = relationship("Student", uselist=False, back_populates="user", cascade="all, delete-orphan")
     professor = relationship("Professor", uselist=False, back_populates="user", cascade="all, delete-orphan")
@@ -155,7 +155,7 @@ class Enrollment(Base):
     course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
     grade = Column(Numeric(4, 2))
     status = Column(Enum(EnrollmentStatus), default=EnrollmentStatus.active)
-    enrolled_at = Column(DateTime, server_default=func.current_timestamp())
+    enrolled_at = Column(DateTime, default=func.now())
 
     __table_args__ = (
         UniqueConstraint('student_user_id', 'course_offering_id', name='uq_enrollment'),
@@ -170,7 +170,7 @@ class Attendance(Base):
     course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
     session_date = Column(Date, nullable=False)
     status = Column(Enum(AttendanceStatus), nullable=False)
-    recorded_at = Column(DateTime, server_default=func.current_timestamp())
+    recorded_at = Column(DateTime, default=func.now())
 
     __table_args__ = ( 
         UniqueConstraint('student_user_id', 'course_offering_id', 'session_date'),
@@ -186,8 +186,8 @@ class Ticket(Base):
     created_by_user_id = Column(Integer, ForeignKey("users.id"))
     assigned_to_user_id = Column(Integer, ForeignKey("users.id"))
     status = Column(Enum(TicketStatus), default=TicketStatus.open)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
-    updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     created_by = relationship("User", foreign_keys=[created_by_user_id])
     assigned_to = relationship("User", foreign_keys=[assigned_to_user_id])
@@ -202,7 +202,7 @@ class Resource(Base):
     file_url = Column(Text)
     resource_type = Column(String(50))
     uploaded_by_user_id = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime, server_default=func.current_timestamp())
+    created_at = Column(DateTime, default=func.now())
 
 
 class StudentPerformance(Base):
@@ -211,5 +211,5 @@ class StudentPerformance(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     response = Column(String(10))
-    measured_at = Column(DateTime, server_default=func.current_timestamp())
+    measured_at = Column(DateTime, default=func.now())
 
