@@ -16,7 +16,7 @@ class AttendanceCreate(BaseModel):
 
 class AttendanceUpdate(BaseModel):
     course_offering_id: int | None=None
-    session_date = date | None=None
+    session_date: date | None=None
     status: AttendanceStatus | None=None
 
     model_config = ConfigDict(extra="forbid")
