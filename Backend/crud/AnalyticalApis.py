@@ -3,47 +3,47 @@ from Backend.models import Student, Attendance, CourseOffering, Enrollment, Cour
 
 def get_students(db: Session, page: int, page_size: int):
     query = db.query(Student)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(Student.user_id).offset((page - 1) * page_size).limit(page_size).all()
 
 
 
 def get_attendance(db: Session, page: int, page_size: int):
     query = db.query(Attendance)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(Attendance.id).offset((page - 1) * page_size).limit(page_size).all()
 
 
 
 def get_course_offering(db: Session, page: int, page_size: int):
     query = db.query(CourseOffering)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(CourseOffering.id).offset((page - 1) * page_size).limit(page_size).all()
 
 
 
 def get_enrollments(db: Session, page: int, page_size: int):
     query = db.query(Enrollment)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(Enrollment.id).offset((page - 1) * page_size).limit(page_size).all()
 
 
 
 def get_department(db: Session, page: int, page_size: int):
     query = db.query(Department)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(Department.id).offset((page - 1) * page_size).limit(page_size).all()
 
 
 
 def get_course(db: Session, page: int, page_size: int):
     query = db.query(Course)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(Course.id).offset((page - 1) * page_size).limit(page_size).all()
 
 
 
 def get_academic_semester(db: Session, page: int, page_size: int):
     query = db.query(AcademicSemester)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(AcademicSemester.id).offset((page - 1) * page_size).limit(page_size).all()
 
 
 
 def get_tickets(db: Session, page: int, page_size: int):
     query = db.query(Ticket)
-    return query.offset((page - 1) * page_size).limit(page_size).all()
+    return query.order_by(Ticket.id).offset((page - 1) * page_size).limit(page_size).all()
 
