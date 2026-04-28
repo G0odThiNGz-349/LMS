@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from Backend.database import get_db
 from Backend.schemas.enrollment import EnrollmentCreate, EnrollmentUpdate
-from Backend.crud.enrollment import create_enrollment, update_enrollment, get_student_enrollments, delete_enrollment
+from Backend.crud.enrollment import create_enrollment, update_enrollment, get_student_enrollments, delete_enrollment, get_current_student_enrollments
+from Backend.auth.dep import get_current_user
+from Backend.models import User
 
 
 router = APIRouter(
@@ -65,3 +67,8 @@ def delete_enrollment_route(
         )
 
     return deleted
+
+
+@router.get("/me")
+def get_student_enrollments_route(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_current_student_enrollments(db= db, current_user= current_user)
