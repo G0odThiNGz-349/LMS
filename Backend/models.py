@@ -3,6 +3,9 @@ from sqlalchemy.orm import relationship
 from Backend.database import Base  
 import enum
 
+class Gender(enum.Enum):
+    male = "male"
+    female = "female"
 
 class UserRole(enum.Enum):
     student = "student"
@@ -63,6 +66,7 @@ class Student(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     full_name = Column(String(255), nullable=False)
     national_id = Column(String(20), unique=True, nullable=False)
+    gender = Column(Enum(Gender))
     phone = Column(String(100), nullable=False)
     birth_date = Column(Date, nullable=False)
     address = Column(Text)
@@ -82,6 +86,7 @@ class Professor(Base):
 
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     full_name = Column(String(255), nullable=False)
+    gender = Column(Enum(Gender))
     department_id = Column(Integer, ForeignKey("departments.id"))
     hire_date = Column(Date)
 
@@ -175,6 +180,16 @@ class Attendance(Base):
     __table_args__ = ( 
         UniqueConstraint('student_user_id', 'course_offering_id', 'session_date'),
     )
+
+
+class Quiz(Base):
+    __tablename__ = "quiz"
+
+    id = Column(Integer, primary_key=True)
+    student_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
+    quiz_date = Column(Date, nullable=False)
+    grade = Column(Numeric(5,2), default=000.00)
 
 
 class Ticket(Base):
