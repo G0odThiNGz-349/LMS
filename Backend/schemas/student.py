@@ -54,7 +54,6 @@ class StudentAdminUpdate(BaseModel):
 
 
 class StudentDetailedResponse(StudentBase):
-    user_id: int
     university_id: str
     email: EmailStr | None=None
 
