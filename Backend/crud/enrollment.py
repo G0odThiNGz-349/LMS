@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from Backend.models import Enrollment, CourseOffering, Course, AcademicSemester
+from Backend.models import Enrollment, CourseOffering, Course, AcademicSemester, User
 from Backend.schemas.enrollment import EnrollmentCreate, EnrollmentUpdate
+from Backend.auth.dep import get_current_user
+from fastapi import Depends
 
 
 def create_enrollment(db: Session, data: EnrollmentCreate):
@@ -85,3 +87,36 @@ def delete_enrollment(db: Session, enrollment_id: int):
     db.commit()
 
     return enrollment
+
+
+
+def get_current_student_enrollments(db: Session, current_user: User = Depends(get_current_user)):
+    results = (
+        db.query(
+            Enrollment,
+            Course.name.label("course_name"),
+            Course.code.label("course_code"),
+            AcademicSemester.name.label("semester_name"),
+        )
+        .join(CourseOffering, Enrollment.course_offering_id == CourseOffering.id)
+        .join(Course, CourseOffering.course_id == Course.id)
+        .join(AcademicSemester, CourseOffering.semester_id == AcademicSemester.id)
+        .filter(Enrollment.student_user_id == current_user.id)
+        .all()
+    )
+
+    response = []
+    for row in results:
+        enrollment = row[0]
+
+        response.append({
+            "course_offering_id": enrollment.course_offering_id,
+            "course_name": row.course_name,
+            "course_code": row.course_code,
+            "semester_name": row.semester_name,
+            "status": enrollment.status,
+            "enrolled_at": enrollment.enrolled_at,
+            "grade": enrollment.grade
+        })
+
+    return response
