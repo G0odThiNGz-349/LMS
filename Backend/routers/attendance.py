@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from datetime import date
 from Backend.database import get_db
 from Backend.schemas.attendance import AttendanceCreate
-from Backend.crud.attendance import create_attendance,get_attendance_by_course, delete_attendance
+from Backend.crud.attendance import create_attendance,get_attendance_by_course, delete_attendance, get_current_user_attendance
+from Backend.auth.dep import get_current_user
+from Backend.models import User
 
 router = APIRouter(
     prefix="/attendance",
@@ -64,3 +66,8 @@ def delete_attendance_route(
         )
 
     return deleted
+
+
+@router.get("/me")
+def get_user_attendance(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_current_user_attendance(db= db, current_user= current_user)
