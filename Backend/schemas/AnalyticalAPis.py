@@ -34,6 +34,7 @@ class ExportStudent(BaseModel):
 
 
 class ExportAttendance(BaseModel):
+    id: int
     student_user_id: int
     course_offering_id: int
     session_date: date
@@ -45,6 +46,7 @@ class ExportAttendance(BaseModel):
 
 
 class ExportEnrollment(BaseModel):
+    id: int
     student_user_id: int
     course_offering_id: int
     grade: Decimal | None = None
