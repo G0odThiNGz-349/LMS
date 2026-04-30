@@ -12,7 +12,6 @@ from Backend.models import (
 
 T = TypeVar("T")
 class PaginatedResponse(BaseModel, Generic[T]):
-    page: int
     page_size: int
     data: List[T]
 
@@ -21,7 +20,8 @@ class ExportStudent(BaseModel):
     user_id: int
     full_name: str
     birth_date: date
-    enroll_date: date 
+    enroll_date: date
+    gender: str 
     expected_graduation: date | None = None
     academic_year: AcademicYear | None = None
     current_gpa: Decimal | None = Field(default=0.00, ge=0, le=4.00)
@@ -72,7 +72,7 @@ class ExportCourseOffering(BaseModel):
 class ExportDepartment(BaseModel):
     id: int
     name: str
-    head_prof_user_id: str | None = None
+    head_prof_user_id: int | None = None
 
     class Config:
         from_attributes = True
@@ -105,8 +105,8 @@ class ExportTickets(BaseModel):
     id: int
     title: str
     description: str
-    created_by_user_id: int
-    assigned_to_user_id: int
+    created_by_user_id: int | None = None
+    assigned_to_user_id: int | None = None
     status: str
     created_at: datetime
     updated_at: datetime
