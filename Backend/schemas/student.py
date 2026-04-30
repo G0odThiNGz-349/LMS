@@ -74,6 +74,6 @@ class StudentListResponse(BaseModel):
     university_id: str
     full_name: str
     academic_year: AcademicYear
-    current_gpa: Decimal
+    current_gpa: Decimal = Decimal ("0.00")
 
     model_config = ConfigDict(from_attributes=True)
