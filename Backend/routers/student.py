@@ -26,11 +26,11 @@ def create_student(student: StudentCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=List[StudentListResponse])
 def list_students(
-    skip: int = Query(default=0, ge=0),
+    skip: int = Query(default=1, ge=1),
     limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(get_db),
 ):
-    return student_crud.get_students(db, skip=skip, limit=limit)
+    return student_crud.get_students(db, page=skip, page_size=limit)
 
 
 @router.get("/search", response_model=List[StudentListResponse])
