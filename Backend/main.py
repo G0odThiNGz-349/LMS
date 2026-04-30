@@ -1,14 +1,18 @@
 from fastapi import FastAPI
 from Backend.database import engine
 from Backend.models import Base
-from Backend.routers import combiend, department, course , AnalyticalApis, ticket, coursePrerequisite, enrollment, attendance, academicSemester, courseOffering
+from Backend.routers import combiend, department, course , AnalyticalApis, ticket, coursePrerequisite, enrollment, attendance, academicSemester, courseOffering, student, users
+from Backend.auth.router import router as auth_router
 
 app = FastAPI()
 
 
 Base.metadata.create_all(bind=engine)
 
+app.include_router(auth_router)
+app.include_router(users.router)
 app.include_router(combiend.router)
+app.include_router(student.router)
 app.include_router(department.router)
 app.include_router(course.router)
 app.include_router(ticket.router)
