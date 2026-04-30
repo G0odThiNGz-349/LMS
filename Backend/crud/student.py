@@ -16,11 +16,25 @@ def create_student(db: Session, student: StudentCreate):
 
 
 def get_student(db: Session, university_id: str):
-    return db.query(Student).options(
+    student= db.query(Student).options(
         joinedload(Student.user)
     ).join(Student.user).filter(
         User.university_id == university_id
     ).first()
+    return{
+        "full_name": student.full_name,
+        "national_id": student.national_id,
+        "phone": student.phone,
+        "birth_date": student.birth_date,
+        "address": student.address,
+        "enroll_date": student.enroll_date,
+        "expected_graduation": student.expected_graduation,
+        "academic_year": student.academic_year,
+        "current_gpa": student.current_gpa,
+        "university_id": student.user.university_id,
+        "email": student.user.email,
+    }
+
 
 
 def get_current_student(db: Session, current_user: User = Depends(get_current_user)):
@@ -43,8 +57,20 @@ def get_current_student(db: Session, current_user: User = Depends(get_current_us
     }
 
 
-def get_students(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Student).offset(skip).limit(limit).all()
+def get_students(db: Session, page: int = 1, page_size: int = 100):
+    query = db.query(Student)
+    response =query.order_by(Student.user_id).offset((page - 1) * page_size).limit(page_size).all()
+    return[{
+        "user_id": row.user_id,
+        "university_id": row.user.university_id,
+        "full_name": row.full_name,
+        "academic_year": row.academic_year,
+        "current_gpa": row.current_gpa
+    }
+    for row in response
+    ]
+
+
 
 
 def search_students_by_university_id(db: Session, query: str):
@@ -64,7 +90,17 @@ def search_students_by_full_name(db: Session, query: str):
 
 
 def get_students_by_year(db: Session, academic_year: str):
-    return db.query(Student).filter(Student.academic_year == academic_year).all()
+    response= db.query(Student).filter(Student.academic_year == academic_year).limit(100)
+
+    return[{
+        "user_id": row.user_id,
+        "university_id": row.user.university_id,
+        "full_name": row.full_name,
+        "academic_year": row.academic_year,
+        "current_gpa": row.current_gpa
+    }
+    for row in response
+    ]
 
 
 def update_student_by_university_id(db: Session, university_id: str, updates: StudentAdminUpdate):
