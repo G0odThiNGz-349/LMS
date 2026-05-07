@@ -113,3 +113,66 @@ class ExportTickets(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class ExportQuizSubmission(BaseModel):
+    id: int
+    quiz_id: int
+    student_user_id: int
+    score: Decimal | None = None
+    percentage: Decimal | None = None
+    submitted_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class ExportExam(BaseModel):
+    id: int
+    course_offering_id: int
+    exam_type: str | None = None
+    exam_date: date
+    duration_min: int
+    total_marks: int
+    room: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class ExportExamResult(BaseModel):
+    id: int
+    exam_id: int
+    student_user_id: int
+    score: Decimal | None = None
+    percentage: Decimal | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class ExportProfessor(BaseModel):
+    user_id: int
+    full_name: str
+    gender: str | None = None
+    department_id: int | None = None
+    hire_date: date | None = None
+
+    class Config:
+        from_attributes = True
+
+
+
+class ExportQuiz(BaseModel):
+    id: int
+    course_offering_id: int
+    quiz_type: str
+    title: str
+    description: str | None = None
+    scheduled_date: date
+    duration_min: int
+    total_marks: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
