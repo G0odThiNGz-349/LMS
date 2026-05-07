@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session, aliased
 from Backend.models import Ticket, User
 from Backend.schemas.ticket import TicketCreate, TicketUpdate
 
-def create_ticket(db: Session, ticket: TicketCreate, created_by_user_id: int):
-    ticket = Ticket(**ticket.model_dump(), created_by_user_id=created_by_user_id)
+def create_ticket(db: Session, ticket: TicketCreate, current_user: User):
+    ticket = Ticket(**ticket.model_dump(), created_by_user_id = current_user.id)
 
     db.add(ticket)
     db.commit()
@@ -61,3 +61,18 @@ def get_tickets_by_user(db: Session, user_id: int):
         }
         for t in results
     ]
+
+
+def get_tickets_by_current_user(db: Session, current_user: User):
+
+    results = db.query(Ticket).filter(Ticket.created_by_user_id == current_user.id).all()
+    return [{
+            "id":row.id,
+            "title":row.title,
+            "description":row.description,
+            "status":row.status,
+            "created_at":row.created_at,
+            "updated_at":row.updated_at
+        }
+        for row in results
+        ]
