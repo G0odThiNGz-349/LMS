@@ -3,7 +3,7 @@ from Backend.database import engine
 from Backend.models import Base
 from Backend.routers import combiend, department, course , AnalyticalApis, ticket, coursePrerequisite, enrollment, attendance, academicSemester, courseOffering, student, users
 from Backend.auth.router import router as auth_router
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 
@@ -29,3 +29,18 @@ app.include_router(AnalyticalApis.department_router)
 app.include_router(AnalyticalApis.course_router)
 app.include_router(AnalyticalApis.tickets_router)
 app.include_router(AnalyticalApis.academic_semester_router)
+app.include_router(AnalyticalApis.quizzes_router)
+app.include_router(AnalyticalApis.professors_router)
+app.include_router(AnalyticalApis.quiz_submissions_router)
+app.include_router(AnalyticalApis.exam_results_router)
+app.include_router(AnalyticalApis.exams_router)
+
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500", "null"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
