@@ -40,6 +40,14 @@ class AcademicYear(enum.Enum):
     senior_1= "senior_1"
     senior_2= "senior_2"
 
+class QuizType(enum.Enum):
+    quiz1= "quiz 1"
+    quiz2= "quiz 2"
+
+class ExamsType(enum.Enum):
+    midterm_exam= "midterm exam"
+    final_exam= "final exam"
+
 
 class User(Base):
     __tablename__ = "users"
@@ -80,6 +88,9 @@ class Student(Base):
 
     user = relationship("User", back_populates="student")
     department = relationship("Department", back_populates="students")
+    quiz_submissions = relationship("QuizSubmission",back_populates="student",primaryjoin="Student.user_id == QuizSubmission.student_user_id",foreign_keys="[QuizSubmission.student_user_id]")
+
+    exam_results = relationship("ExamResult",back_populates="student",primaryjoin="Student.user_id == ExamResult.student_user_id",foreign_keys="[ExamResult.student_user_id]")
 
 class Professor(Base):
     __tablename__ = "professors"
@@ -147,6 +158,8 @@ class CourseOffering(Base):
     start_date = Column(Date)
     end_date = Column(Date)
 
+    quizzes = relationship("Quiz", back_populates="offering")
+    exam = relationship("Exam", back_populates="offering", uselist=False)
     course = relationship("Course")
     semester = relationship("AcademicSemester")
     professor = relationship("User")
@@ -180,16 +193,6 @@ class Attendance(Base):
     __table_args__ = ( 
         UniqueConstraint('student_user_id', 'course_offering_id', 'session_date'),
     )
-
-
-class Quiz(Base):
-    __tablename__ = "quiz"
-
-    id = Column(Integer, primary_key=True)
-    student_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
-    quiz_date = Column(Date, nullable=False)
-    grade = Column(Numeric(5,2), default=000.00)
 
 
 class Ticket(Base):
@@ -228,3 +231,73 @@ class StudentPerformance(Base):
     response = Column(String(10))
     measured_at = Column(DateTime, default=func.now())
 
+
+class Quiz(Base):
+    __tablename__ = "quizzes"
+ 
+    id = Column(Integer, primary_key=True, index=True)
+    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
+    quiz_type = Column(Enum(QuizType), nullable=False)          
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    scheduled_date = Column(Date,    nullable=False)
+    duration_min = Column(Integer, default=30)                       
+    total_marks = Column(Integer, default=10)                       
+    created_at = Column(DateTime,  default=func.now())
+
+    offering = relationship("CourseOffering", back_populates="quizzes")
+    submissions = relationship("QuizSubmission", back_populates="quiz") 
+ 
+    __table_args__ = (
+        UniqueConstraint("course_offering_id", "quiz_type", name="uq_offering_quiz_type"),
+    )
+ 
+ 
+class QuizSubmission(Base):
+    __tablename__ = "quiz_submissions"
+ 
+    id = Column(Integer, primary_key=True, index=True)
+    quiz_id = Column(Integer, ForeignKey("quizzes.id"), nullable=False)
+    student_user_id = Column(Integer, ForeignKey("users.id"),  nullable=False)
+    score = Column(Numeric(5,2), nullable=True)       
+    percentage = Column(Numeric(5,2), nullable=True)       
+    submitted_at = Column(DateTime, nullable=True)
+
+    quiz    = relationship("Quiz", back_populates="submissions")
+    student = relationship("Student",foreign_keys=[student_user_id],primaryjoin="QuizSubmission.student_user_id == Student.user_id",back_populates="quiz_submissions")
+ 
+    __table_args__ = (
+        UniqueConstraint("quiz_id", "student_user_id", name="uq_quiz_student"),
+    )
+ 
+ 
+class Exam(Base):
+    __tablename__ = "exams"   
+
+    id = Column(Integer, primary_key=True, index=True)
+    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False, unique=True)
+    exam_type = Column(Enum(ExamsType))
+    exam_date = Column(Date, nullable=False)
+    duration_min = Column(Integer, default=90)
+    total_marks = Column(Integer, default=30)
+    room = Column(String(50), nullable=True)
+
+    offering = relationship("CourseOffering", back_populates="exam")
+    results = relationship("ExamResult", back_populates="exam", cascade="all, delete-orphan")
+
+
+class ExamResult(Base):
+    __tablename__ = "exam_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    exam_id = Column(Integer, ForeignKey("exams.id"), nullable=False)         
+    student_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    score = Column(Numeric(5, 2), nullable=True)
+    percentage = Column(Numeric(5, 2), nullable=True)
+
+    exam = relationship("Exam", back_populates="results")                     
+    student = relationship("Student", foreign_keys=[student_user_id],primaryjoin="ExamResult.student_user_id == Student.user_id",back_populates="exam_results")
+
+    __table_args__ = (
+        UniqueConstraint("exam_id", "student_user_id", name="uq_exam_student"),
+    )
