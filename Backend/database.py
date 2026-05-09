@@ -7,7 +7,24 @@ load_dotenv()
 db_url = os.getenv("CLOUD_DATABASE_URL")
 
 
-engine = create_engine(db_url)
+from sqlalchemy import create_engine
+from urllib.parse import quote_plus
+
+engine = create_engine(
+    db_url,
+    fast_executemany=True,           
+    echo=False,                      
+    pool_pre_ping=True,              
+    pool_recycle=1800,               
+    pool_size=15,                    
+    max_overflow=25,
+    pool_timeout=60,                 
+    connect_args={
+        "timeout": 60,                    
+        "connect_timeout": 60,
+        "driver": "ODBC Driver 18 for SQL Server",
+    },
+)
 
 SessionLocal = sessionmaker(
     bind=engine,
