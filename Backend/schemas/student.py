@@ -15,6 +15,8 @@ class StudentBase(BaseModel):
     national_id: str
     phone: str
     birth_date: date
+    gender: str
+    department_name: str
     address: str | None=None
     enroll_date: date
     expected_graduation: date | None=None

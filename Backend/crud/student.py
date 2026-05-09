@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from Backend.models import Student, User
+from Backend.models import Student, User, Department
 from Backend.schemas.student import StudentCreate, StudentAdminUpdate
 from Backend.auth.dep import get_current_user
 from fastapi import Depends
@@ -41,13 +41,15 @@ def get_current_student(db: Session, current_user: User = Depends(get_current_us
     current_student = db.query(Student).options(
         joinedload(Student.user)
     ).filter(Student.user_id == current_user.id).first()
-
+    department = db.query(Department).filter(Department.id == current_student.department_id).first()
     return{
         "full_name": current_student.full_name,
         "national_id": current_student.national_id,
         "phone": current_student.phone,
         "birth_date": current_student.birth_date,
         "address": current_student.address,
+        "gender": current_student.gender,
+        "department_name": department.name,
         "enroll_date": current_student.enroll_date,
         "expected_graduation": current_student.expected_graduation,
         "academic_year": current_student.academic_year,
