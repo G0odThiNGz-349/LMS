@@ -1,177 +1,104 @@
-# University LMS with Integrated Ticketing & Analytics
+# Learning Management System (LMS) — Data Platform
 
-*(Work in Progress)*
+An end-to-end data platform built on top of a Learning Management System backend, designed to turn raw student, course, and academic activity data into actionable insights through a cloud data pipeline, a machine learning model, and business dashboards.
 
 ## Overview
 
-This project is a Learning Management System (LMS) designed to address a real-world problem in universities: unstructured and unreliable communication through informal platforms like WhatsApp.
+Educational institutions generate large amounts of student data across multiple systems but struggle to turn that data into insights. This project demonstrates how that data can be captured, transformed, and used to understand and improve student performance — from raw transactional records all the way to predictive analytics and executive dashboards.
 
-We built a system that replaces fragmented communication with a structured ticketing workflow, while also supporting core academic operations and enabling data-driven insights.
+## Scope
 
----
+- **LMS Backend** — REST API and relational database for data generation
+- **Azure** — Cloud-based data pipelines and data warehouse
+- **Machine Learning** — Model for academic performance prediction
+- **Dashboards** — Power BI dashboards for business insights
 
-## Problem Statement
+## Architecture
 
-In many universities:
+The platform follows a medallion (Bronze/Silver/Gold) architecture:
 
-* Students rely on messaging apps to contact professors and staff
-* Messages are often lost, ignored, or delayed
-* There is no tracking or accountability
-* No data exists to analyze communication efficiency
+1. **Data Sources** — APIs (external systems), the main operational database, and manually uploaded CSV files
+2. **Raw Data (Bronze / Landing)** — Raw data is copied as-is from the source into cloud storage
+3. **Cleansed Data (Silver)** — Data is cleaned and standardized: null handling, deduplication, enum normalization, joining user/student profiles, and feature engineering
+4. **Curated Data (Gold)** — Data is modeled into a curated star schema, plus an ML feature store (GPA trend, attendance %, quiz average, failed courses, activity metrics)
+5. **Consumption (Analytics & ML)** — Dashboards & reports, machine learning (model training, risk prediction, performance classification, graduation likelihood), and predictions written back to the main database
+6. **Analytics & Consumption Layer** — Power BI reports/dashboards, ML insights (at-risk students, intervention alerts, recommendations), and data sharing via CSV/Excel exports or API endpoints
 
----
+Supporting the pipeline:
+- **Orchestration** — Scheduling, retry & failure handling, monitoring and logs
+- **Monitoring & Alerts** — Logging & metrics, email/Slack alerts, pipeline monitoring, data quality alerts, model performance alerts
+- **Security & Governance** — IAM & access control, role-based access, data encryption, audit logging, data governance
 
-## Solution
+## Backend
 
-Our system introduces a centralized LMS platform with a structured ticketing system as its core feature:
+### Database Design
 
-* Students submit requests as tickets
-* Tickets are assigned to responsible staff (professors, TAs, admin)
-* Status tracking:
-  Open → In Progress → Resolved → Closed
-* Full history and accountability
-* Optional categorization (academic, technical, administrative)
+The relational schema covers the full academic domain, including:
 
-This ensures:
+- `USERS`, `STUDENTS`, `PROFESSORS`, `DEPARTMENTS`
+- `COURSES`, `COURSE_PREREQUISITES`, `COURSE_OFFERINGS`, `ACADEMIC_SEMESTERS`
+- `ENROLLMENTS`, `ATTENDANCE`
+- `QUIZZES` / `QUIZ_SUBMISSIONS`, `EXAMS` / `EXAM_RESULTS`
+- `RESOURCES`, `TICKETS`
+- `STUDENT_PERFORMANCE` (stores model predictions)
 
-* No lost messages
-* Clear responsibility
-* Transparent communication
+### APIs
 
----
+Around **91 total APIs**, organized into four groups:
 
-## System Features
+1. Main LMS APIs
+2. RBAC APIs (role-based access control)
+3. Analytical APIs
+4. ML APIs
 
-### Core LMS
+Example endpoints include `GET /students/me`, `POST /students/`, `GET /students/search`, and `GET /students/year/{academic_year}`, among others covering users, students, professors, courses, enrollments, attendance, and assessments.
 
-* User roles (Student, Professor, TA, Admin, IT Staff)
-* Course management
-* Course offerings per semester
-* Enrollment system
-* Attendance tracking
-* Resources (files, materials)
+Analytical/ML endpoints support **incremental (cursor-based) pagination** — each query filters records greater than the last-seen ID and returns results ordered ascending, which powers the incremental data ingestion pipeline described below.
 
-### Ticketing System
+## Cloud & Data Pipeline (Microsoft Azure)
 
-* Create, assign, and manage tickets
-* Status tracking
-* Role-based handling
-* Comments and discussion per ticket (later feature)
+### Data Ingestion
 
-### Analytics & Data Layer
+```
+Incremental load from APIs → Store to cloud (Blob Storage) → Transform → Store to warehouse
+```
 
-* Dedicated analytics endpoints
-* Student performance logging
-* Attendance and GPA tracking
-* Data extraction APIs for analysis
+### Incremental Load of Data
 
-### Machine Learning
+1. Data is pulled from analytical APIs using the last-loaded ID as a cursor
+2. The new last IDs are persisted to a JSON file (`max_ids`) so subsequent runs only fetch new records
+3. Newly loaded data is uploaded to cloud storage
 
-* Predict student performance (e.g., risk of failure)
-* Analyze patterns in attendance and engagement
+### Warehouse Schema (Gold Layer — Star Schema)
 
----
+Dimension tables: `dim_date`, `dim_student`, `dim_course`, `dim_professor`, `dim_department`, `dim_semester`, `dim_course_offering`, `dim_assessment`
 
-## Architecture Overview
+Fact tables: `fact_attendance`, `fact_assessment_result`
 
-The system is designed with scalability in mind:
+### Pipelines & Automation
 
-* Core LMS Service → handles academic operations
-* Ticketing Module → structured communication layer
-* Analytics API Layer → exposes data for analysis
-* ML Component → consumes analytics data
+Built using Azure Data Factory / Synapse-style pipelines and triggers:
 
-This separation allows:
+- **Bronze trigger pipeline** — Watches for new/changed files landing in the Bronze folder, captures the file path/name and logs it (with upload date and pending/done status) to a Delta Lake table
+- **Bronze → Silver pipeline** — Runs on a schedule or manually; loads pending files from the Delta Lake tracking table, then iterates through each file (ForEach) to run the transformation notebook, marking each as done and recording the output path in a `latest_files` Delta table
+- **Silver trigger pipeline** — Watches for changes in the Silver folder
+- **Silver → Gold pipeline** — Same pattern as Bronze → Silver: loads pending tables and transforms each into the curated star schema
 
-* Independent scaling of services
-* Integration with national-level systems
-* Secure data access via APIs instead of direct database access
+## Machine Learning
 
----
+A regression model predicts each student's expected performance score based on features such as current GPA, attendance rate, and credits earned. Predictions are surfaced back to students (e.g., predicted score, forecasted GPA trend) and stored in the `student_performance` table for downstream use in dashboards and intervention alerts.
 
-## API Design
+## Dashboards
 
-The system exposes APIs for:
+Two main dashboard experiences are included:
 
-### Core Operations
-
-* Users
-* Courses
-* Enrollments
-* Attendance
-* Resources
-* Quizzes
-
-### Ticketing
-
-* Create ticket
-* Assign ticket
-* Update status
-
-### Analytics
-
-* Attendance rates
-* GPA statistics
-* Student performance logs
-
----
+- **Student Hub (Student Portal)** — Personal dashboard showing predicted score, current GPA, credits earned, attendance rate, a performance & forecast chart, ML prediction gauge, semester GPA trend, and quick stats
+- **Power BI (Business/Institutional View)** — Institution-wide dashboards covering % students at risk, average GPA, attendance/absence rate, average score by department/course/professor, session status breakdown, and student demographics (e.g., students at risk by gender)
 
 ## Tech Stack
 
-### Backend
+- **Backend:** REST API (Python/FastAPI-style), relational database (SQL)
+- **Cloud & Data Engineering:** Microsoft Azure (Blob Storage, synapse data pipelines, Delta Lake, notebooks)
+- **Machine Learning:** Regression-based performance prediction
+- **BI & Visualization:** Power BI
 
-* Python
-* FastAPI
-* SQLAlchemy
-* MySQL
-
-### Data & Machine Learning
-
-* Python (Pandas, Scikit-learn)
-* JSON-based logging
-
----
-
-## Security
-
-* Role-based access control
-* Restricted analytics endpoints (admins only)
-* Token-based authentication (JWT)
-
----
-
-## Scalability Vision
-
-This system is designed to scale to national-level deployment:
-
-* Modular architecture
-* API-based data access
-
-Potential for:
-
-* Microservices
-* Load balancing
-* Centralized analytics dashboards
-
-Each university can operate independently while contributing to a centralized data system.
-
----
-
-## Project Goal
-
-This project aims to demonstrate:
-
-* A real-world solution to communication inefficiencies in universities
-* A scalable system design
-* Integration of data engineering and analytics
-* A foundation for data-driven education systems
-
----
-
-## Future Improvements
-
-* Real-time chat (WebSockets)
-* Advanced ticket prioritization and SLA
-* Full analytics dashboards
-* AI-based recommendations
-* Mobile application
