@@ -90,6 +90,7 @@ def delete_enrollment(db: Session, enrollment_id: int):
 
 
 
+
 def get_current_student_enrollments(db: Session, current_user: User = Depends(get_current_user)):
     results = (
         db.query(
@@ -97,6 +98,7 @@ def get_current_student_enrollments(db: Session, current_user: User = Depends(ge
             Course.name.label("course_name"),
             Course.code.label("course_code"),
             AcademicSemester.name.label("semester_name"),
+            Course.credits.label("credits")            
         )
         .join(CourseOffering, Enrollment.course_offering_id == CourseOffering.id)
         .join(Course, CourseOffering.course_id == Course.id)
@@ -108,7 +110,6 @@ def get_current_student_enrollments(db: Session, current_user: User = Depends(ge
     response = []
     for row in results:
         enrollment = row[0]
-
         response.append({
             "course_offering_id": enrollment.course_offering_id,
             "course_name": row.course_name,
@@ -116,7 +117,8 @@ def get_current_student_enrollments(db: Session, current_user: User = Depends(ge
             "semester_name": row.semester_name,
             "status": enrollment.status,
             "enrolled_at": enrollment.enrolled_at,
-            "grade": enrollment.grade
+            "grade": enrollment.grade,
+            "credits": row.credits           
         })
 
     return response
