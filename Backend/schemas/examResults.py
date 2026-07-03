@@ -34,6 +34,11 @@ class MyExamResultOut(BaseModel):
     exam_id: int
     score: Optional[Decimal]
     percentage: Optional[Decimal]
- 
+    subject: str          
+    term: str             
+    credits: int          
+    grade: Optional[str]
+    exam_type: str 
+
     class Config:
         from_attributes = True

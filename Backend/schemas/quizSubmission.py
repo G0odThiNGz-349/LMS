@@ -27,8 +27,16 @@ class QuizSubmissionUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
  
  
-class QuizSubmissionOut(QuizSubmissionBase):
-    id: int
+class QuizSubmissionOut(BaseModel):
+    quiz_id: int
+    score: Optional[Decimal] = None
+    percentage: Optional[Decimal] = None
+    submitted_at: Optional[datetime] = None
+    subject: str          
+    term: str            
+    credits: int          
+    grade: Optional[str]
+    quiz_type: str  
  
     class Config:
         from_attributes = True
