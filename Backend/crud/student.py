@@ -16,12 +16,15 @@ def create_student(db: Session, student: StudentCreate):
 
 
 def get_student(db: Session, university_id: str):
-    student= db.query(Student).options(
-        joinedload(Student.user)
+    student = db.query(Student).options(
+        joinedload(Student.user),
+        joinedload(Student.department)     
     ).join(Student.user).filter(
         User.university_id == university_id
     ).first()
-    return{
+
+
+    return {
         "full_name": student.full_name,
         "national_id": student.national_id,
         "phone": student.phone,
@@ -33,6 +36,8 @@ def get_student(db: Session, university_id: str):
         "current_gpa": student.current_gpa,
         "university_id": student.user.university_id,
         "email": student.user.email,
+        "gender": student.gender,                 
+        "department_name": student.department.name  
     }
 
 
