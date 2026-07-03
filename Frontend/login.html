@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 25px 60px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        header a {
+            text-decoration: none;
+            color: #666;
+            margin-left: 30px;
+            transition: color 0.2s;
+        }
+
+        header a:hover {
+            color: #222;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-home {
+            font-size: 18px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-grow: 1;
+            padding: 20px 60px;
+            align-items: center; 
+            gap: 40px;
+        }
+
+        .login-section {
+            width: 45%;
+            max-width: 500px;
+            padding-top: 20px;
+            flex-shrink: 0;
+        }
+
+        .image-section {
+            flex-grow: 1;
+            height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            max-width: 100%;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3a3a3a;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 1px solid #a8bbed;
+            border-radius: 30px;
+            font-size: 15px;
+            color: #333;
+            background-color: white;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]::placeholder,
+        input[type="password"]::placeholder {
+            color: #a8bbed;
+        }
+
+        input:focus {
+            border-color: #8ba1e4;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 45px;
+        }
+
+        .password-wrapper i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8ba1e4;
+            cursor: pointer;
+        }
+
+        .actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+            margin-bottom: 30px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+        }
+
+        .custom-check {
+            position: relative;
+            margin-right: 10px;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #a8bbed;
+            border-radius: 50%;
+            background-color: #eef3fe;
+        }
+        
+        .custom-check.checked {
+            background-color: #b0c6f5;
+            border-color: #8ba1e4;
+        }
+
+        .custom-check.checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .forget-pass {
+            font-size: 14px;
+            color: #8ba1e4;
+            text-decoration: none;
+        }
+
+        .signin-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #4a73e8;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 10px rgba(74, 115, 232, 0.3);
+        }
+
+        .signin-btn:hover {
+            background-color: #3860d0;
+        }
+
+        .error-message {
+            color: #ba1a1a;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+            .main-container {
+                flex-direction: column;
+                padding: 20px;
+                align-items: center;
+                gap: 20px;
+            }
+            .login-section {
+                width: 100%;
+                max-width: 100%;
+            }
+            .image-section {
+                width: 100%;
+                height: auto;
+                max-height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-right">
+            <a href="#">Help</a>
+            <a href="#">Contact us</a>
+            <a href="#" class="header-home"><i class="fas fa-home"></i></a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="login-section">
+            <h1>WELCOME BACK!</h1>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="deniel123@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Enter your password">
+                        <i class="far fa-eye-slash" id="toggle-password"></i>
+                    </div>
+                </div>
+
+                <div class="actions-row">
+                    <label class="remember-me">
+                        <span class="custom-check checked"></span>
+                        Remember me
+                    </label>
+                    <a href="#" class="forget-pass">Forget password?</a>
+                </div>
+
+                <button type="submit" class="signin-btn">Sign In</button>
+                <div id="error-message" class="error-message"></div>
+            </form>
+        </div>
+
+        <div class="image-section">
+            <img src="login.png" alt="Campus Illustration"> 
+        </div>
+    </div>
+
+<script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('toggle-password');
+    togglePassword.addEventListener('click', function() {
+        const passInput = document.getElementById('password');
+        const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passInput.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    // Login form submission
+    const API_BASE_URL = 'http://localhost:8000';  // Change if different
+
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('error-message');
+
+        if (!username || !password) {
+            errorEl.textContent = 'Please enter both username and password.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        // Prepare form-urlencoded body as required by OAuth2PasswordRequestForm
+        const formData = new URLSearchParams();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({ detail: 'Invalid credentials' }));
+                throw new Error(errData.detail || 'Login failed');
+            }
+
+            const data = await response.json();
+            // Store tokens in localStorage
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+
+            // Redirect to portal
+            window.location.href = 'student_portal.html';
+        } catch (error) {
+            errorEl.textContent = error.message || 'An error occurred. Please try again.';
+            errorEl.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

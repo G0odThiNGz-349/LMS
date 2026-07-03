@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Performance Forecast - UniPortal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Manrope:wght@500;600;700;900&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#576863", "on-surface-variant": "#3f4942", "secondary-fixed-dim": "#b8cbc4",
+                        "surface": "#f8f9fa", "background": "#f8f9fa", "surface-container-highest": "#e1e3e4",
+                        "on-secondary": "#ffffff", "secondary": "#51625d", "primary": "#005c3e",
+                        "primary-fixed-dim": "#7fd8ac", "error": "#ba1a1a", "primary-fixed": "#9bf5c7",
+                        "surface-bright": "#f8f9fa", "on-primary-container": "#a1fbcd", "surface-tint": "#006c49",
+                        "inverse-surface": "#2e3132", "on-primary-fixed": "#002113", "outline": "#6f7a72",
+                        "on-tertiary": "#ffffff", "inverse-primary": "#7fd8ac", "primary-container": "#137752",
+                        "on-background": "#191c1d", "surface-variant": "#e1e3e4", "outline-variant": "#bec9c0",
+                        "on-error-container": "#93000a", "surface-container-high": "#e7e8e9",
+                        "surface-container-low": "#f3f4f5", "error-container": "#ffdad6",
+                        "secondary-container": "#d4e7e0", "on-primary": "#ffffff", "inverse-on-surface": "#f0f1f2",
+                        "surface-container": "#edeeef", "surface-dim": "#d9dadb", "tertiary-container": "#876200",
+                        "on-surface": "#191c1d", "surface-container-lowest": "#ffffff", "tertiary": "#694b00",
+                        "on-error": "#ffffff", "secondary-fixed": "#d4e7e0", "tertiary-fixed-dim": "#fdbc13",
+                        "tertiary-fixed": "#ffdea3", "on-tertiary-container": "#ffe5b9"
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    fontFamily: {
+                        "headline-sm": ["Manrope", "sans-serif"], "headline-lg": ["Manrope", "sans-serif"],
+                        "data-tabular": ["Inter", "sans-serif"], "headline-md": ["Manrope", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"], "body-md": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"], "label-caps": ["Inter", "sans-serif"]
+                    },
+                    fontSize: {
+                        "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "data-tabular": ["14px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .skeleton {
+            background: linear-gradient(90deg, #e1e3e4 25%, #f0f1f2 50%, #e1e3e4 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 4px;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0
+            }
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        .stat-card {
+            transition: all 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-track {
+            height: 8px;
+            border-radius: 9999px;
+            background: #e1e3e4;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.8s ease;
+        }
+
+        .sidebar-link {
+            transition: all 0.15s ease;
+        }
+        .sidebar-link:hover {
+            background: #e7e8e9;
+            color: #005c3e;
+        }
+        .sidebar-link.active {
+            background: #e7e8e9;
+            color: #005c3e;
+            border-right-color: #005c3e;
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+        .gauge-container svg {
+            transform: rotate(-90deg);
+        }
+        .gauge-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .spin {
+            animation: spin 0.6s ease;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        .forecast-card {
+            background: linear-gradient(145deg, #f8f9fa, #edeeef);
+            border: 1px solid #e1e3e4;
+        }
+
+        .gpa-trend {
+            transition: all 0.3s ease;
+        }
+        .gpa-trend:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-screen w-60 z-50 bg-slate-50 border-r border-slate-200 flex flex-col hidden md:flex">
+        <div class="flex flex-col h-full py-4">
+            <div class="px-6 mb-8 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">school</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-black text-emerald-800">Student Hub</span>
+                    <span id="sidebar-semester" class="font-manrope text-sm font-medium text-slate-500">Loading...</span>
+                </div>
+            </div>
+            <nav class="flex-1 flex flex-col gap-1 px-3">
+                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer border-r-4 border-transparent" href="student_portal.html">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">person</span>Profile
+                </a>
+                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer border-r-4 border-transparent" href="academic_record.html">
+                    <span class="material-symbols-outlined">description</span>Academic Record
+                </a>
+                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-700 bg-emerald-50 border-r-4 border-emerald-700 font-manrope text-sm font-medium cursor-pointer" href="#">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">leaderboard</span>Performance
+                </a>
+            </nav>
+            <div class="mt-auto px-3 flex flex-col gap-1 border-t border-slate-200 pt-4">
+                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer" href="#">
+                    <span class="material-symbols-outlined">help</span>Help Center
+                </a>
+                <a id="sign-out-btn" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer" href="#">
+                    <span class="material-symbols-outlined">logout</span>Sign Out
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 flex flex-col min-w-0 md:ml-60 h-screen">
+        <!-- Header -->
+        <header class="w-full h-16 sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm flex justify-between items-center px-6">
+            <div class="flex items-center gap-4">
+                <span class="md:hidden text-xl font-bold text-emerald-900">UniPortal</span>
+                <div class="hidden sm:flex items-center relative group">
+                    <span class="material-symbols-outlined absolute left-3 text-slate-400 group-focus-within:text-emerald-600 transition-colors">search</span>
+                    <input class="pl-10 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" placeholder="Search portal..." type="text" />
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="status-badge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">
+                    <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                    <span id="status-text">Live</span>
+                </div>
+                <button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border border-white"></span>
+                </button>
+                <button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <div class="w-px h-6 bg-slate-200 mx-1"></div>
+                <div class="w-9 h-9 rounded-full bg-surface-container border border-outline-variant flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">person</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Global Error Banner -->
+        <div id="global-error" class="hidden bg-error-container text-error px-4 py-2 mx-6 mt-4 rounded-lg text-sm"></div>
+
+        <div class="flex-1 overflow-y-auto p-6 bg-surface">
+            <div class="max-w-6xl mx-auto flex flex-col gap-8 pb-12">
+
+                <!-- Page Header -->
+                <div>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface">Performance Forecast</h1>
+                    <p class="font-body-lg text-body-lg text-secondary mt-1">AI-powered prediction of your academic trajectory and GPA outlook.</p>
+                </div>
+
+                <!-- Stats Row (4 cards) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="stats-row">
+                    <!-- Predicted Score -->
+                    <div class="stat-card bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-primary-fixed-dim/20 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined text-2xl">trending_up</span>
+                        </div>
+                        <div>
+                            <div class="font-label-caps text-label-caps text-outline uppercase">Predicted Score</div>
+                            <div id="stat-predicted" class="font-headline-md text-headline-md text-primary"><span class="skeleton inline-block w-12 h-7">&nbsp;</span></div>
+                        </div>
+                    </div>
+                    <!-- Current GPA (calculated from enrollments) -->
+                    <div class="stat-card bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-secondary shrink-0">
+                            <span class="material-symbols-outlined text-2xl">grade</span>
+                        </div>
+                        <div>
+                            <div class="font-label-caps text-label-caps text-outline uppercase">Current GPA</div>
+                            <div id="stat-gpa" class="font-headline-md text-headline-md text-on-surface"><span class="skeleton inline-block w-12 h-7">&nbsp;</span></div>
+                        </div>
+                    </div>
+                    <!-- Credits Earned (from enrollments) -->
+                    <div class="stat-card bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary shrink-0">
+                            <span class="material-symbols-outlined text-2xl">check_circle</span>
+                        </div>
+                        <div>
+                            <div class="font-label-caps text-label-caps text-outline uppercase">Credits Earned</div>
+                            <div id="stat-credits" class="font-headline-md text-headline-md text-on-surface"><span class="skeleton inline-block w-12 h-7">&nbsp;</span></div>
+                        </div>
+                    </div>
+                    <!-- Attendance Rate -->
+                    <div class="stat-card bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-primary-fixed-dim/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined text-2xl">event_available</span>
+                        </div>
+                        <div>
+                            <div class="font-label-caps text-label-caps text-outline uppercase">Attendance Rate</div>
+                            <div id="stat-attendance" class="font-headline-md text-headline-md text-on-surface"><span class="skeleton inline-block w-12 h-7">&nbsp;</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                    <!-- Left Column (8 cols) - Chart -->
+                    <div class="lg:col-span-8 flex flex-col gap-8">
+
+                        <!-- Performance Forecast Chart -->
+                        <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-[0_4px_16px_rgba(0,0,0,0.02)]">
+                            <div class="flex items-center justify-between mb-5 pb-4 border-b border-surface-variant">
+                                <h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">show_chart</span>Performance &amp; Forecast
+                                </h2>
+                                <span id="chart-status" class="text-xs bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-medium">Loading...</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-6 mt-4 text-sm text-secondary">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-0.5 bg-primary" style="height:3px;"></span>
+                                    <span>Predicted Performance</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-0.5 bg-tertiary-fixed-dim" style="height:3px; border-top: 3px dashed #fdbc13;"></span>
+                                    <span>Forecast Trend</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-primary-fixed-dim/30 border border-primary"></span>
+                                    <span>GPA Target</span>
+                                </div>
+                            </div>
+                            <div id="chart-empty" class="hidden text-center py-8 text-secondary font-body-md">
+                                <span class="material-symbols-outlined text-4xl text-outline-variant block mb-2">bar_chart</span>
+                                No prediction data available yet.
+                            </div>
+                        </section>
+
+                        <!-- GPA Trend & Semester Breakdown -->
+                        <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-[0_4px_16px_rgba(0,0,0,0.02)]">
+                            <div class="flex items-center justify-between mb-5 pb-4 border-b border-surface-variant">
+                                <h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-tertiary">stacked_line_chart</span>Semester GPA Trend
+                                </h2>
+                                <span id="trend-status" class="text-xs bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-medium">Projected</span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="gpa-trend-container">
+                                <!-- Injected by JS -->
+                            </div>
+                            <div id="trend-empty" class="hidden text-center py-8 text-secondary font-body-md">
+                                <span class="material-symbols-outlined text-4xl text-outline-variant block mb-2">trending_flat</span>
+                                No GPA trend data available.
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Right Column (4 cols) -->
+                    <div class="lg:col-span-4 flex flex-col gap-8">
+
+                        <!-- Prediction Gauge -->
+                        <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-[0_4px_16px_rgba(0,0,0,0.02)] text-center">
+                            <h2 class="font-headline-md text-headline-md text-on-surface mb-3 pb-4 border-b border-surface-variant flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-tertiary-fixed-dim">psychology</span>ML Prediction
+                            </h2>
+                            <div class="flex justify-center py-2">
+                                <div class="gauge-container">
+                                    <svg width="140" height="140" viewBox="0 0 140 140">
+                                        <circle cx="70" cy="70" r="58" fill="none" stroke="#e1e3e4" stroke-width="10" />
+                                        <circle id="gauge-circle" cx="70" cy="70" r="58" fill="none" stroke="#005c3e" stroke-width="10"
+                                        stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4" />
+                                    </svg>
+                                    <div class="gauge-value">
+                                        <div id="gauge-number" class="font-headline-lg text-headline-lg text-on-surface">—</div>
+                                        <div class="font-label-caps text-label-caps text-outline uppercase">Predicted</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex justify-center gap-6 text-sm text-secondary">
+                                <div><span class="font-semibold text-on-surface" id="gauge-min">0</span>% min</div>
+                                <div><span class="font-semibold text-on-surface" id="gauge-max">100</span>% max</div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-surface-variant">
+                                <div class="flex justify-between text-xs text-secondary">
+                                    <span>Model: Regression</span>
+                                    <span id="prediction-status" class="flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Ready
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Quick Stats -->
+                        <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-[0_4px_16px_rgba(0,0,0,0.02)]">
+                            <h2 class="font-headline-md text-headline-md text-on-surface mb-5 pb-4 border-b border-surface-variant flex items-center gap-2">
+                                <span class="material-symbols-outlined text-tertiary">speed</span>Quick Stats
+                            </h2>
+                            <div class="space-y-3" id="quick-stats-container">
+                                <!-- Injected by JS -->
+                            </div>
+                        </section>
+
+                        <!-- Action Buttons -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="refresh-btn" class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant text-center hover:border-primary-fixed-dim hover:shadow-sm transition-all group flex flex-col items-center">
+                                <span class="material-symbols-outlined text-primary block text-2xl group-hover:scale-110 transition-transform">refresh</span>
+                                <span class="font-label-caps text-label-caps text-outline mt-1 block">Refresh</span>
+                            </button>
+                            <a href="#" class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant text-center hover:border-primary-fixed-dim hover:shadow-sm transition-all group flex flex-col items-center">
+                                <span class="material-symbols-outlined text-primary block text-2xl group-hover:scale-110 transition-transform">download</span>
+                                <span class="font-label-caps text-label-caps text-outline mt-1 block">Export</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ── Configuration ──────────────────────────────────────────────
+        const API_BASE_URL = 'http://localhost:8000';
+        const PROFILE_ENDPOINT = '/students/me';
+        const ENROLLMENTS_ENDPOINT = '/enrollments/me';
+        const EXAM_RESULTS_ENDPOINT = '/me/exam-results';
+        const QUIZ_SUBMISSIONS_ENDPOINT = '/me/quiz-submissions';
+        const SEMESTER_ENDPOINT = '/academic-semesters/current';
+        const PREDICT_ENDPOINT = '/predict';
+
+        let performanceChart = null;
+
+        // ── Helpers ───────────────────────────────────────────────────
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            return {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+        }
+
+        function showError(message) {
+            const errEl = document.getElementById('global-error');
+            errEl.textContent = message;
+            errEl.classList.remove('hidden');
+        }
+
+        function clearError() {
+            document.getElementById('global-error').classList.add('hidden');
+        }
+
+        // ── GPA Calculation (supports both letter and numeric grades) ──
+        const GRADE_POINTS = {
+            'A+': 4.0,
+            'A': 4.0,
+            'A-': 3.7,
+            'B+': 3.3,
+            'B': 3.0,
+            'B-': 2.7,
+            'C+': 2.3,
+            'C': 2.0,
+            'C-': 1.7,
+            'D+': 1.3,
+            'D': 1.0,
+            'F': 0.0
+        };
+
+        function getGradePoints(grade) {
+            if (grade === null || grade === undefined || grade === '') return null;
+
+            // If it's a number (or numeric string), treat as percentage
+            const num = parseFloat(grade);
+            if (!isNaN(num) && isFinite(num)) {
+                // Assume grade is out of 100, convert to GPA on 4.0 scale
+                const gpa = (num / 100) * 4.0;
+                return Math.min(4.0, Math.max(0, gpa));
+            }
+
+            // Otherwise, treat as letter grade
+            const g = grade.toString().toUpperCase().trim();
+            return GRADE_POINTS[g] !== undefined ? GRADE_POINTS[g] : null;
+        }
+
+        function calculateGPAFromEnrollments(enrollments) {
+            if (!enrollments || enrollments.length === 0) return null;
+
+            let totalPoints = 0;
+            let totalCredits = 0;
+
+            enrollments.forEach(enrollment => {
+                const grade = enrollment.grade;
+                const credits = enrollment.credits || 0;
+                const points = getGradePoints(grade);
+
+                if (points !== null && credits > 0) {
+                    totalPoints += points * credits;
+                    totalCredits += credits;
+                }
+            });
+
+            if (totalCredits === 0) return null;
+            const gpa = totalPoints / totalCredits;
+            return Math.round(gpa * 100) / 100; // round to 2 decimals
+        }
+
+        // ── Other helpers ────────────────────────────────────────────
+        function getGradePointsForScore(grade) {
+            // For prediction payload - returns 0 if invalid
+            if (grade === null || grade === undefined || grade === '') return 0;
+            const num = parseFloat(grade);
+            if (!isNaN(num) && isFinite(num)) {
+                return Math.min(4.0, Math.max(0, (num / 100) * 4.0));
+            }
+            const g = grade.toString().toUpperCase().trim();
+            return GRADE_POINTS[g] !== undefined ? GRADE_POINTS[g] : 0;
+        }
+
+        function isPassing(grade) {
+            if (!grade) return false;
+            const g = grade.toString().toUpperCase().trim();
+            return g !== 'F' && !g.includes('PEND') && g !== '—';
+        }
+
+        function fmtDate(v) {
+            if (!v) return '—';
+            const d = new Date(v);
+            return isNaN(d) ? v : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        // ── API Calls ──────────────────────────────────────────────────
+
+        async function fetchProfile() {
+            const res = await fetch(`${API_BASE_URL}${PROFILE_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error(`Profile ${res.status}`);
+            return res.json();
+        }
+
+        async function fetchEnrollments() {
+            const res = await fetch(`${API_BASE_URL}${ENROLLMENTS_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error(`Enrollments ${res.status}`);
+            return res.json();
+        }
+
+        async function fetchExamResults() {
+            const res = await fetch(`${API_BASE_URL}${EXAM_RESULTS_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error(`Exam results ${res.status}`);
+            return res.json();
+        }
+
+        async function fetchQuizSubmissions() {
+            const res = await fetch(`${API_BASE_URL}${QUIZ_SUBMISSIONS_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error(`Quiz submissions ${res.status}`);
+            return res.json();
+        }
+
+        async function fetchSemester() {
+            const res = await fetch(`${API_BASE_URL}${SEMESTER_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error(`Semester ${res.status}`);
+            return res.json();
+        }
+
+        async function fetchPrediction(payload) {
+            const res = await fetch(`${API_BASE_URL}${PREDICT_ENDPOINT}`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ detail: 'Prediction failed' }));
+                throw new Error(err.detail || `Prediction ${res.status}`);
+            }
+            return res.json();
+        }
+
+        // ── Build Prediction Payload ──────────────────────────────────
+
+        function buildPredictionPayload(profile, enrollments, examResults, quizSubmissions, semester) {
+            const payload = {
+                academic_year: profile?.academic_year || '2024',
+                dept_name: profile?.dept_name || 'Computer Science',
+                current_gpa: profile?.current_gpa || 3.0,
+                passed_credits: 0,
+                registered_credits: 0,
+                gender: profile?.gender || 'Male',
+                enroll_year: profile?.enroll_year || 2022,
+                course_credits: 0,
+                course_dept: 'CS',
+                semester_season: semester?.semester_season || 'Fall',
+                att_sessions: 30,
+                att_present_pct: 85,
+                att_late_pct: 5,
+                att_absent_pct: 5,
+                att_excused_pct: 5,
+                quiz1_score: 0,
+                quiz1_pct: 0,
+                quiz1_status: 'Pending',
+                quiz2_score: 0,
+                quiz2_pct: 0,
+                quiz2_status: 'Pending',
+                midterm_score: 0,
+                midterm_pct: 0,
+                midterm_status: 'Pending'
+            };
+
+            if (enrollments && enrollments.length > 0) {
+                let totalCredits = 0;
+                let passedCredits = 0;
+                enrollments.forEach(e => {
+                    totalCredits += (e.credits || 0);
+                    if (e.status && e.status.toLowerCase() === 'passed') {
+                        passedCredits += (e.credits || 0);
+                    }
+                });
+                payload.registered_credits = totalCredits;
+                payload.course_credits = totalCredits;
+                payload.passed_credits = passedCredits;
+                payload.course_dept = enrollments[0]?.dept_name || enrollments[0]?.department || 'CS';
+            }
+
+            if (quizSubmissions && quizSubmissions.length > 0) {
+                const q1 = quizSubmissions[0] || null;
+                const q2 = quizSubmissions[1] || null;
+                if (q1) {
+                    payload.quiz1_score = q1.score || 0;
+                    payload.quiz1_pct = q1.percentage || 0;
+                    payload.quiz1_status = (q1.percentage !== null && q1.percentage !== undefined && q1.percentage > 0) ?
+                        'Completed' : 'Pending';
+                }
+                if (q2) {
+                    payload.quiz2_score = q2.score || 0;
+                    payload.quiz2_pct = q2.percentage || 0;
+                    payload.quiz2_status = (q2.percentage !== null && q2.percentage !== undefined && q2.percentage > 0) ?
+                        'Completed' : 'Pending';
+                }
+            }
+
+            if (examResults && examResults.length > 0) {
+                const midterm = examResults.find(r =>
+                    r.subject && r.subject.toLowerCase().includes('midterm')
+                ) || examResults[0];
+                if (midterm) {
+                    const gp = getGradePointsForScore(midterm.grade);
+                    payload.midterm_score = gp > 0 ? gp : 0;
+                    payload.midterm_pct = gp > 0 ? Math.round((gp / 4.0) * 100) : 0;
+                    payload.midterm_status = isPassing(midterm.grade) ? 'Completed' : 'Pending';
+                }
+            }
+
+            if (semester) {
+                payload.semester_season = semester.semester_season || semester.season || 'Fall';
+                payload.academic_year = semester.academic_year || profile?.academic_year || '2024';
+            }
+            if (profile?.gender) payload.gender = profile.gender;
+            if (profile?.enroll_year) payload.enroll_year = profile.enroll_year;
+            if (profile?.current_gpa) payload.current_gpa = profile.current_gpa;
+            if (profile?.dept_name) payload.dept_name = profile.dept_name;
+
+            return payload;
+        }
+
+        // ── Chart Rendering ──────────────────────────────────────────
+
+        function renderChart(predictedScore, gpaData) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const status = document.getElementById('chart-status');
+            const empty = document.getElementById('chart-empty');
+
+            if (predictedScore === null && (!gpaData || gpaData.length === 0)) {
+                empty.classList.remove('hidden');
+                status.textContent = 'No data';
+                return;
+            }
+            empty.classList.add('hidden');
+            status.textContent = 'Forecast ready';
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const semLabels = [];
+            const semSeasons = ['Spring', 'Fall', 'Spring'];
+            const semYears = [currentYear, currentYear + (currentMonth >= 7 ? 1 : 0), currentYear + (currentMonth >= 7 ? 1 : 0) + (
+                currentMonth >= 7 ? 0 : 1)];
+
+            let seasonIdx = currentMonth >= 7 ? 1 : 0;
+            for (let i = 0; i < 5; i++) {
+                const s = semSeasons[(seasonIdx + i) % 2];
+                const y = semYears[i] || currentYear + Math.floor((seasonIdx + i) / 2);
+                semLabels.push(`${s} ${y}`);
+            }
+
+            const baseScore = predictedScore || 70;
+            const perfData = [];
+            const forecastData = [];
+            const gpaPoints = [];
+
+            for (let i = 0; i < 5; i++) {
+                const variation = Math.sin(i * 0.8) * 5 + (i * 1.5);
+                const val = Math.min(100, Math.max(40, baseScore + variation + (i > 2 ? 2 : 0)));
+                perfData.push(Math.round(val));
+
+                const fVal = Math.min(100, Math.max(40, baseScore + (i * 2.5) + Math.sin(i * 0.5) * 3));
+                forecastData.push(Math.round(fVal));
+
+                const gp = (fVal / 100) * 4.0;
+                gpaPoints.push(Math.round(gp * 100) / 100);
+            }
+
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: semLabels,
+                    datasets: [{
+                        label: 'Predicted Performance',
+                        data: perfData,
+                        borderColor: '#005c3e',
+                        backgroundColor: 'rgba(0, 92, 62, 0.08)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#005c3e',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        borderWidth: 3,
+                    }, {
+                        label: 'Forecast Trend',
+                        data: forecastData,
+                        borderColor: '#fdbc13',
+                        backgroundColor: 'rgba(253, 188, 19, 0.05)',
+                        fill: false,
+                        tension: 0.4,
+                        borderDash: [6, 4],
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fdbc13',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5,
+                        borderWidth: 2,
+                    }, {
+                        label: 'GPA Target',
+                        data: gpaPoints.map(p => p * 25),
+                        borderColor: '#7fd8ac',
+                        backgroundColor: 'rgba(127, 216, 172, 0.15)',
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#7fd8ac',
+                        pointBorderColor: '#005c3e',
+                        pointBorderWidth: 2,
+                        borderWidth: 2,
+                        borderDash: [2, 3],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(255,255,255,0.95)',
+                            titleColor: '#191c1d',
+                            bodyColor: '#3f4942',
+                            borderColor: '#e1e3e4',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    let val = context.parsed.y;
+                                    if (context.dataset.label === 'GPA Target') {
+                                        return `${label}: ${(val / 25).toFixed(2)} GPA`;
+                                    }
+                                    return `${label}: ${val}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                callback: function(value) { return value + '%'; },
+                                color: '#6f7a72',
+                                font: { size: 10 }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)',
+                                drawBorder: false,
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#6f7a72',
+                                font: { size: 10 }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                }
+            });
+
+            window._gpaPoints = gpaPoints;
+        }
+
+        // ── GPA Trend Render ─────────────────────────────────────────
+
+        function renderGpaTrend(gpaPoints) {
+            const container = document.getElementById('gpa-trend-container');
+            const empty = document.getElementById('trend-empty');
+
+            if (!gpaPoints || gpaPoints.length === 0) {
+                container.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            const semNames = ['Current', 'Next', 'Target'];
+            const colors = ['#005c3e', '#137752', '#fdbc13'];
+
+            container.innerHTML = gpaPoints.slice(0, 3).map((gpa, idx) => {
+                const color = colors[idx] || '#005c3e';
+                const pct = Math.min(100, (gpa / 4.0) * 100);
+                return `
+                    <div class="gpa-trend bg-surface-container-low rounded-xl p-3 text-center border border-outline-variant">
+                        <div class="font-label-caps text-label-caps text-outline uppercase">${semNames[idx] || 'Semester'}</div>
+                        <div class="font-headline-md text-headline-md text-on-surface mt-1" style="color:${color}">${gpa.toFixed(2)}</div>
+                        <div class="progress-track mt-2">
+                            <div class="progress-fill" style="width:${pct}%; background: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ── Stats & Quick Stats ──────────────────────────────────────
+
+        function renderQuickStats(profile, enrollments, examResults, quizSubmissions, attendancePct, currentGPA) {
+            const container = document.getElementById('quick-stats-container');
+
+            const totalCourses = enrollments ? enrollments.length : 0;
+            const totalQuizzes = quizSubmissions ? quizSubmissions.length : 0;
+            const totalExams = examResults ? examResults.length : 0;
+
+            let passedCredits = 0;
+            if (enrollments && enrollments.length > 0) {
+                enrollments.forEach(e => {
+                    if (e.status && e.status.toLowerCase() === 'passed') {
+                        passedCredits += (e.credits || 0);
+                    }
+                });
+            }
+
+            let totalCredits = 0;
+            if (enrollments) {
+                enrollments.forEach(c => {
+                    totalCredits += (c.credits || 0);
+                });
+            }
+
+            const items = [
+                { label: 'Current Courses', value: totalCourses, icon: 'menu_book' },
+                { label: 'Quizzes Taken', value: totalQuizzes, icon: 'quiz' },
+                { label: 'Exams Completed', value: totalExams, icon: 'assignment' },
+                { label: 'Passed Credits', value: passedCredits, icon: 'check_circle' },
+                { label: 'Total Credits', value: totalCredits, icon: 'book' },
+                { label: 'Attendance', value: `${attendancePct}%`, icon: 'event_available' },
+                { label: 'Current GPA', value: currentGPA !== null ? currentGPA.toFixed(2) : '—', icon: 'grade' },
+            ];
+
+            container.innerHTML = items.map(item => `
+                <div class="flex items-center justify-between py-2 border-b border-surface-variant last:border-0">
+                    <span class="font-body-sm text-body-sm text-secondary flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm text-outline">${item.icon}</span>
+                        ${item.label}
+                    </span>
+                    <span class="font-data-tabular text-data-tabular text-on-surface font-semibold">${item.value}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(profile, enrollments, examResults, predictedScore, attendancePct, currentGPA) {
+            document.getElementById('stat-predicted').textContent = predictedScore !== null ? predictedScore + '%' : '—';
+            document.getElementById('stat-gpa').textContent = currentGPA !== null ? currentGPA.toFixed(2) : '—';
+
+            let earned = 0;
+            if (enrollments && enrollments.length > 0) {
+                enrollments.forEach(e => {
+                    if (e.status && e.status.toLowerCase() === 'passed') {
+                        earned += (e.credits || 0);
+                    }
+                });
+            }
+            document.getElementById('stat-credits').textContent = earned;
+            document.getElementById('stat-attendance').textContent = attendancePct + '%';
+        }
+
+        function updateGauge(score) {
+            const circle = document.getElementById('gauge-circle');
+            const numberEl = document.getElementById('gauge-number');
+            const circumference = 364.4;
+            const clamped = Math.max(0, Math.min(100, score));
+            const offset = circumference - (clamped / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            numberEl.textContent = clamped + '%';
+        }
+
+        function applySemesterData(semester) {
+            const el = document.getElementById('sidebar-semester');
+            if (!semester) {
+                el.textContent = 'Semester unavailable';
+                return;
+            }
+            el.textContent = semester.name || `Semester ${semester.academic_year || ''}` || 'Current Semester';
+        }
+
+        // ── Main Load ──────────────────────────────────────────────────
+
+        let cachedProfile = null;
+        let cachedEnrollments = null;
+        let cachedExamResults = null;
+        let cachedQuizSubmissions = null;
+        let cachedSemester = null;
+
+        async function loadAllData() {
+            clearError();
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const [profile, enrollments, examResults, quizSubmissions, semester] = await Promise.all([
+                    fetchProfile().catch(() => null),
+                    fetchEnrollments().catch(() => null),
+                    fetchExamResults().catch(() => null),
+                    fetchQuizSubmissions().catch(() => null),
+                    fetchSemester().catch(() => null)
+                ]);
+
+                cachedProfile = profile;
+                cachedEnrollments = enrollments;
+                cachedExamResults = examResults;
+                cachedQuizSubmissions = quizSubmissions;
+                cachedSemester = semester;
+
+                applySemesterData(semester);
+
+                let attendancePct = 85;
+                if (quizSubmissions && quizSubmissions.length > 0) {
+                    const completed = quizSubmissions.filter(q => q.percentage !== null && q.percentage !== undefined && q
+                        .percentage > 0);
+                    attendancePct = quizSubmissions.length > 0 ?
+                        Math.round((completed.length / quizSubmissions.length) * 100) :
+                        85;
+                }
+
+                const payload = buildPredictionPayload(profile, enrollments, examResults, quizSubmissions, semester);
+
+                let predictedScore = null;
+                let predictedGPA = null;
+                try {
+                    const predResult = await fetchPrediction(payload);
+                    predictedScore = predResult.predicted_total_score || null;
+                    if (predictedScore !== null) {
+                        predictedGPA = (predictedScore / 100) * 4.0;
+                        predictedGPA = Math.round(predictedGPA * 100) / 100;
+                    }
+                } catch (e) {
+                    console.warn('Prediction failed:', e);
+                    let avg = 0,
+                        count = 0;
+                    if (examResults) {
+                        examResults.forEach(r => {
+                            const gp = getGradePointsForScore(r.grade);
+                            if (gp > 0) { avg += gp;
+                                count++; }
+                        });
+                    }
+                    if (count > 0) {
+                        predictedScore = Math.round((avg / count / 4.0) * 100);
+                    } else {
+                        predictedScore = (profile?.current_gpa || 3.0) / 4.0 * 100;
+                    }
+                    predictedScore = Math.min(100, Math.max(0, Math.round(predictedScore)));
+                    predictedGPA = (predictedScore / 100) * 4.0;
+                    predictedGPA = Math.round(predictedGPA * 100) / 100;
+                }
+
+                // ── Calculate current GPA from enrollments (supports numeric grades) ──
+                let currentGPA = calculateGPAFromEnrollments(enrollments);
+                // Fallback to profile GPA if enrollment calculation returns null
+                if (currentGPA === null && profile?.current_gpa) {
+                    currentGPA = parseFloat(profile.current_gpa);
+                    if (isNaN(currentGPA)) currentGPA = null;
+                }
+
+                // Generate GPA trend data (forecast) based on predicted score
+                const gpaPoints = [];
+                if (predictedGPA !== null) {
+                    for (let i = 0; i < 5; i++) {
+                        const variation = Math.sin(i * 0.7) * 0.15 + (i * 0.04);
+                        const val = Math.min(4.0, Math.max(1.0, predictedGPA + variation));
+                        gpaPoints.push(Math.round(val * 100) / 100);
+                    }
+                }
+
+                // Render everything
+                renderChart(predictedScore, gpaPoints);
+                renderGpaTrend(gpaPoints);
+                renderQuickStats(profile, enrollments, examResults, quizSubmissions, attendancePct, currentGPA);
+                updateStats(profile, enrollments, examResults, predictedScore, attendancePct, currentGPA);
+                updateGauge(predictedScore || 0);
+
+                const badge = document.getElementById('status-badge');
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+                document.getElementById('status-text').textContent = 'Live';
+
+            } catch (e) {
+                showError(`Failed to load performance data: ${e.message}`);
+                console.error(e);
+            }
+        }
+
+        // ── Refresh ───────────────────────────────────────────────────
+
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            loadAllData();
+            const icon = this.querySelector('.material-symbols-outlined');
+            icon.classList.add('spin');
+            setTimeout(() => { icon.classList.remove('spin'); }, 600);
+        });
+
+        // ── Sign Out ──────────────────────────────────────────────────
+
+        document.getElementById('sign-out-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = 'login.html';
+        });
+
+        // ── Start ──────────────────────────────────────────────────────
+
+        window.addEventListener('DOMContentLoaded', loadAllData);
+    </script>
+</body>
+</html>
