@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Student Profile - UniPortal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Manrope:wght@500;600;700;900&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#576863", "on-surface-variant": "#3f4942", "secondary-fixed-dim": "#b8cbc4",
+                        "surface": "#f8f9fa", "background": "#f8f9fa", "surface-container-highest": "#e1e3e4",
+                        "on-secondary": "#ffffff", "secondary": "#51625d", "primary": "#005c3e",
+                        "primary-fixed-dim": "#7fd8ac", "error": "#ba1a1a", "primary-fixed": "#9bf5c7",
+                        "surface-bright": "#f8f9fa", "on-primary-container": "#a1fbcd", "surface-tint": "#006c49",
+                        "inverse-surface": "#2e3132", "on-primary-fixed": "#002113", "outline": "#6f7a72",
+                        "on-tertiary": "#ffffff", "inverse-primary": "#7fd8ac", "primary-container": "#137752",
+                        "on-background": "#191c1d", "surface-variant": "#e1e3e4", "outline-variant": "#bec9c0",
+                        "on-error-container": "#93000a", "surface-container-high": "#e7e8e9",
+                        "surface-container-low": "#f3f4f5", "error-container": "#ffdad6",
+                        "secondary-container": "#d4e7e0", "on-primary": "#ffffff", "inverse-on-surface": "#f0f1f2",
+                        "surface-container": "#edeeef", "surface-dim": "#d9dadb", "tertiary-container": "#876200",
+                        "on-surface": "#191c1d", "surface-container-lowest": "#ffffff", "tertiary": "#694b00",
+                        "on-error": "#ffffff", "secondary-fixed": "#d4e7e0", "tertiary-fixed-dim": "#fdbc13",
+                        "tertiary-fixed": "#ffdea3", "on-tertiary-container": "#ffe5b9"
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    fontFamily: {
+                        "headline-sm": ["Manrope", "sans-serif"], "headline-lg": ["Manrope", "sans-serif"],
+                        "data-tabular": ["Inter", "sans-serif"], "headline-md": ["Manrope", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"], "body-md": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"], "label-caps": ["Inter", "sans-serif"]
+                    },
+                    fontSize: {
+                        "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "data-tabular": ["14px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .skeleton {
+            background: linear-gradient(90deg, #e1e3e4 25%, #f0f1f2 50%, #e1e3e4 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 4px;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0
+            }
+            100% {
+                background-position: -200% 0
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-screen w-60 z-50 bg-slate-50 border-r border-slate-200 flex flex-col hidden md:flex">
+        <div class="flex flex-col h-full py-4">
+            <div class="px-6 mb-8 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">school</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-black text-emerald-800">Student Hub</span>
+                    <span id="sidebar-semester" class="font-manrope text-sm font-medium text-slate-500">Loading...</span>
+                </div>
+            </div>
+            <nav class="flex-1 flex flex-col gap-1 px-3">
+                <!-- Profile (active) -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-700 bg-emerald-50 border-r-4 border-emerald-700 font-manrope text-sm font-medium cursor-pointer" href="student_portal.html">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">person</span>Profile
+                </a>
+                <!-- Academic Record -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer border-r-4 border-transparent" href="academic_record.html">
+                    <span class="material-symbols-outlined">school</span>Academic Record
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer border-r-4 border-transparent" href="student_performance.html">
+                    <span class="material-symbols-outlined">leaderboard</span>Performance
+                </a>
+            </nav>
+            <div class="mt-auto px-3 flex flex-col gap-1 border-t border-slate-200 pt-4">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer" href="#">
+                    <span class="material-symbols-outlined">help</span>Help Center
+                </a>
+                <a id="sign-out-btn" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-manrope text-sm font-medium cursor-pointer" href="#">
+                    <span class="material-symbols-outlined">logout</span>Sign Out
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 flex flex-col min-w-0 md:ml-60 h-screen">
+        <header class="w-full h-16 sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm flex justify-between items-center px-6">
+            <div class="flex items-center gap-4">
+                <span class="md:hidden text-xl font-bold text-emerald-900">UniPortal</span>
+                <div class="hidden sm:flex items-center relative group">
+                    <span class="material-symbols-outlined absolute left-3 text-slate-400 group-focus-within:text-emerald-600 transition-colors">search</span>
+                    <input class="pl-10 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" placeholder="Search portal..." type="text" />
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="status-badge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">
+                    <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                    <span id="status-text">Live</span>
+                </div>
+                <button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 border border-white"></span>
+                </button>
+                <button class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <div class="w-px h-6 bg-slate-200 mx-1"></div>
+                <div class="w-9 h-9 rounded-full bg-surface-container border border-outline-variant flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">person</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Global Error Banner -->
+        <div id="global-error" class="hidden bg-error-container text-error px-4 py-2 mx-6 mt-4 rounded-lg text-sm"></div>
+
+        <div class="flex-1 overflow-y-auto p-6 bg-surface">
+            <div class="max-w-6xl mx-auto flex flex-col gap-8 pb-12">
+
+                <!-- Profile Header -->
+                <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-primary-fixed-dim opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+                    <div class="w-28 h-28 shrink-0 rounded-full border-4 border-surface shadow-sm overflow-hidden bg-surface-container flex items-center justify-center relative z-10">
+                        <span id="avatar-icon" class="material-symbols-outlined text-[64px] text-outline" style="font-variation-settings:'FILL' 1;">person</span>
+                    </div>
+                    <div class="flex-1 flex flex-col text-center md:text-left z-10">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+                            <div>
+                                <h1 id="field-full_name" class="font-headline-lg text-headline-lg text-on-surface mb-1">
+                                    <span class="skeleton inline-block w-48 h-8">&nbsp;</span>
+                                </h1>
+                                <p id="field-department_name" class="font-body-lg text-body-lg text-secondary">
+                                    <span class="skeleton inline-block w-56 h-5">&nbsp;</span>
+                                </p>
+                            </div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-container text-on-secondary-container border border-secondary-fixed-dim w-max mx-auto md:mx-0">
+                                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                <span class="font-data-tabular text-data-tabular font-medium">Currently Enrolled</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2 mt-4 text-secondary font-body-md text-body-md">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-outline">calendar_today</span>
+                                <span id="field-academic_year"><span class="skeleton inline-block w-28 h-4">&nbsp;</span></span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-outline">school</span>
+                                <span id="field-current_gpa"><span class="skeleton inline-block w-20 h-4">&nbsp;</span></span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-outline">fingerprint</span>
+                                <span id="field-university_id"><span class="skeleton inline-block w-32 h-4">&nbsp;</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Single Column (Full width) -->
+                <div class="grid grid-cols-1 gap-8">
+                    <!-- Personal Data -->
+                    <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-[0_4px_16px_rgba(0,0,0,0.02)]">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-surface-variant">
+                            <h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">badge</span>Personal Data
+                            </h2>
+                        </div>
+                        <div class="flex flex-col" id="personal-data-rows">
+                            <!-- rows injected by JS -->
+                        </div>
+                    </section>
+
+                    <!-- Action Tiles -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <a class="group bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm hover:shadow-md hover:border-primary-fixed-dim hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3 relative overflow-hidden" href="#">
+                            <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                                <span class="material-symbols-outlined text-[28px]">map</span>
+                            </div>
+                            <div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Study Plan</h3>
+                                <p class="font-body-sm text-body-sm text-secondary">View current curriculum and course prerequisites.</p>
+                            </div>
+                        </a>
+                        <a class="group bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm hover:shadow-md hover:border-primary-fixed-dim hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3 relative overflow-hidden" href="#">
+                            <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                                <span class="material-symbols-outlined text-[28px]">medical_information</span>
+                            </div>
+                            <div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Medical Record</h3>
+                                <p class="font-body-sm text-body-sm text-secondary">Update health information and insurance details.</p>
+                            </div>
+                        </a>
+                        <a class="group bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm hover:shadow-md hover:border-primary-fixed-dim hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3 relative overflow-hidden" href="#">
+                            <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                                <span class="material-symbols-outlined text-[28px]">account_balance_wallet</span>
+                            </div>
+                            <div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Financial Status</h3>
+                                <p class="font-body-sm text-body-sm text-secondary">Manage tuition payments and scholarships.</p>
+                            </div>
+                        </a>
+                        <a class="group bg-surface-container-lowest rounded-xl p-5 border border-outline-variant shadow-sm hover:shadow-md hover:border-primary-fixed-dim hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3 relative overflow-hidden" href="#">
+                            <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                                <span class="material-symbols-outlined text-[28px]">workspace_premium</span>
+                            </div>
+                            <div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Certificates</h3>
+                                <p class="font-body-sm text-body-sm text-secondary">Request official transcripts and enrollment proofs.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ── Configuration ──────────────────────────────────────────────
+        const API_BASE_URL = 'http://localhost:8000';
+        const PROFILE_ENDPOINT = '/students/me';
+        const ENROLLMENTS_ENDPOINT = '/enrollments/me';
+        const SEMESTER_ENDPOINT = '/academic-semesters/current';
+
+        // ── Grade → Grade Point mapping (supports both letter and numeric) ──
+        const GRADE_POINTS = {
+            'A+': 4.0,
+            'A': 4.0,
+            'A-': 3.7,
+            'B+': 3.3,
+            'B': 3.0,
+            'B-': 2.7,
+            'C+': 2.3,
+            'C': 2.0,
+            'C-': 1.7,
+            'D+': 1.3,
+            'D': 1.0,
+            'F': 0.0
+        };
+
+        function getGradePoints(grade) {
+            if (grade === null || grade === undefined || grade === '') return null;
+
+            // Try to parse as number (numeric grade)
+            const num = parseFloat(grade);
+            if (!isNaN(num) && isFinite(num)) {
+                // Assume grade is out of 100, convert to GPA on 4.0 scale
+                const gpa = (num / 100) * 4.0;
+                return Math.min(4.0, Math.max(0, gpa));
+            }
+
+            // Otherwise treat as letter grade
+            const g = grade.toString().toUpperCase().trim();
+            return GRADE_POINTS[g] !== undefined ? GRADE_POINTS[g] : null;
+        }
+
+        // ── Calculate GPA from enrollments ────────────────────────────
+        function calculateGPAFromEnrollments(enrollments) {
+            if (!enrollments || enrollments.length === 0) return null;
+
+            let totalPoints = 0;
+            let totalCredits = 0;
+
+            enrollments.forEach(enrollment => {
+                const grade = enrollment.grade;
+                const credits = enrollment.credits || 0;
+                const points = getGradePoints(grade);
+
+                // Only include enrollments that have a valid grade (non-null)
+                if (points !== null && credits > 0) {
+                    totalPoints += points * credits;
+                    totalCredits += credits;
+                }
+            });
+
+            if (totalCredits === 0) return null;
+            const gpa = totalPoints / totalCredits;
+            return Math.round(gpa * 100) / 100; // round to 2 decimals
+        }
+
+        // ── Field map for header elements ─────────────────────────────
+        const FIELD_MAP = {
+            full_name: { id: 'field-full_name' },
+            academic_year: { id: 'field-academic_year', fmt: v => `Year ${v}` },
+            current_gpa: { id: 'field-current_gpa', fmt: v => `GPA: ${v}` },
+            university_id: { id: 'field-university_id', fmt: v => `ID: ${v}` },
+            enroll_date: { id: 'field-enroll_date', fmt: v => `Enrolled: ${fmtDate(v)}` },
+            department_name: { id: 'field-department_name' },
+        };
+
+        // ── Personal data rows ────────────────────────────────────────
+        const ROWS = [
+            ['Full Name', 'full_name'],
+            ['National ID', 'national_id'],
+            ['Date of Birth', 'birth_date', fmtDate],
+            ['Gender', 'gender'],
+            ['Email', 'email'],
+            ['Phone', 'phone'],
+            ['Address', 'address'],
+            ['Enroll Date', 'enroll_date', fmtDate],
+            ['Expected Graduation', 'expected_graduation', fmtDate],
+            ['Current GPA', 'current_gpa', null, true], // special flag: calculated from enrollments
+            ['University ID', 'university_id'],
+        ];
+
+        function fmtDate(v) {
+            if (!v) return '—';
+            const d = new Date(v);
+            return isNaN(d) ? v : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        // ── Build rows with GPA override ──────────────────────────────
+        function buildRows(data, calculatedGPA) {
+            const container = document.getElementById('personal-data-rows');
+            container.innerHTML = '';
+            ROWS.forEach(([label, key, fmt, isGPA]) => {
+                let val;
+                if (isGPA) {
+                    // For GPA row, use calculated GPA if available, otherwise fallback to data value
+                    val = calculatedGPA !== null ? calculatedGPA.toFixed(2) : (data[key] != null ? data[key] : '—');
+                } else {
+                    val = data[key] != null ? (fmt ? fmt(data[key]) : data[key]) : '—';
+                }
+                container.innerHTML += `
+                    <div class="grid grid-cols-1 sm:grid-cols-3 py-3 border-b border-surface-variant last:border-0 hover:bg-surface transition-colors rounded px-2 -mx-2">
+                        <div class="font-label-caps text-label-caps text-outline uppercase tracking-wider flex items-center sm:col-span-1">${label}</div>
+                        <div class="font-data-tabular text-data-tabular text-on-surface sm:col-span-2">${val}</div>
+                    </div>`;
+            });
+        }
+
+        function applyProfileData(data, calculatedGPA) {
+            // Update header fields (use calculated GPA for the GPA field)
+            Object.entries(FIELD_MAP).forEach(([key, cfg]) => {
+                const el = document.getElementById(cfg.id);
+                if (!el) return;
+                let raw;
+                if (key === 'current_gpa' && calculatedGPA !== null) {
+                    raw = calculatedGPA.toFixed(2);
+                } else {
+                    raw = data[key];
+                }
+                el.textContent = raw != null ? (cfg.fmt ? cfg.fmt(raw) : raw) : '—';
+            });
+
+            const avatarIcon = document.getElementById('avatar-icon');
+            if (data.gender && data.gender.toLowerCase() === 'female') {
+                avatarIcon.textContent = 'person';
+            } else if (data.gender && data.gender.toLowerCase() === 'male') {
+                avatarIcon.textContent = 'person';
+            }
+
+            buildRows(data, calculatedGPA);
+
+            const badge = document.getElementById('status-badge');
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+            document.getElementById('status-text').textContent = 'Live';
+        }
+
+        function applySemesterData(semester) {
+            const el = document.getElementById('sidebar-semester');
+            if (!semester) {
+                el.textContent = 'Semester unavailable';
+                return;
+            }
+            el.textContent = semester.name || `Semester ${semester.academic_year}/${semester.semester_number}` || 'Current Semester';
+        }
+
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            return {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+        }
+
+        function showError(message) {
+            const errEl = document.getElementById('global-error');
+            errEl.textContent = message;
+            errEl.classList.remove('hidden');
+        }
+
+        function clearError() {
+            document.getElementById('global-error').classList.add('hidden');
+        }
+
+        // ── API Calls ──────────────────────────────────────────────────
+
+        async function fetchProfile() {
+            const res = await fetch(`${API_BASE_URL}${PROFILE_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(`${res.status} ${res.statusText}: ${msg}`);
+            }
+            return res.json();
+        }
+
+        async function fetchEnrollments() {
+            const res = await fetch(`${API_BASE_URL}${ENROLLMENTS_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(`${res.status} ${res.statusText}: ${msg}`);
+            }
+            return res.json();
+        }
+
+        async function fetchSemester() {
+            const res = await fetch(`${API_BASE_URL}${SEMESTER_ENDPOINT}`, { headers: getAuthHeaders() });
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(`${res.status} ${res.statusText}: ${msg}`);
+            }
+            return res.json();
+        }
+
+        // ── Init ──────────────────────────────────────────────────────
+
+        async function initPortal() {
+            clearError();
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                // Fetch all data in parallel
+                const [profile, enrollments, semester] = await Promise.all([
+                    fetchProfile(),
+                    fetchEnrollments(),
+                    fetchSemester().catch(() => null)
+                ]);
+
+                // Calculate GPA from enrollments
+                let calculatedGPA = calculateGPAFromEnrollments(enrollments);
+
+                // Fallback to profile's current_gpa if enrollment calculation returns null
+                if (calculatedGPA === null && profile?.current_gpa) {
+                    const fallback = parseFloat(profile.current_gpa);
+                    if (!isNaN(fallback)) {
+                        calculatedGPA = fallback;
+                    }
+                }
+
+                // Apply all data
+                applyProfileData(profile, calculatedGPA);
+                applySemesterData(semester);
+
+            } catch (e) {
+                showError(`Failed to load profile data: ${e.message}`);
+                console.error(e);
+            }
+        }
+
+        document.getElementById('sign-out-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = 'login.html';
+        });
+
+        window.addEventListener('DOMContentLoaded', initPortal);
+    </script>
+</body>
+</html>
