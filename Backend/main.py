@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from Backend.database import engine
 from Backend.models import Base
-from Backend.routers import combiend, department, course , AnalyticalApis, ticket, coursePrerequisite, enrollment, attendance, academicSemester, courseOffering, student, users, quizSubmission, quiz, exam, examResults
+from Backend.routers import combiend, department, course , AnalyticalApis, ticket, coursePrerequisite, enrollment, attendance, academicSemester, courseOffering, student, users, quizSubmission, quiz, exam, examResults, student_perfomance
 from Backend.auth.router import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
@@ -40,6 +40,7 @@ app.include_router(AnalyticalApis.professors_router)
 app.include_router(AnalyticalApis.quiz_submissions_router)
 app.include_router(AnalyticalApis.exam_results_router)
 app.include_router(AnalyticalApis.exams_router)
+app.include_router(student_perfomance.student_performance_router)
 
 
 

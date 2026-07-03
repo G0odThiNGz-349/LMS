@@ -171,7 +171,7 @@ class Enrollment(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     student_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
-    grade = Column(Numeric(4, 2))
+    grade = Column(Numeric(5, 2))
     status = Column(Enum(EnrollmentStatus), default=EnrollmentStatus.active)
     enrolled_at = Column(DateTime, default=func.now())
 
@@ -275,7 +275,7 @@ class Exam(Base):
     __tablename__ = "exams"   
 
     id = Column(Integer, primary_key=True, index=True)
-    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False, unique=True)
+    course_offering_id = Column(Integer, ForeignKey("course_offerings.id"), nullable=False)
     exam_type = Column(Enum(ExamsType))
     exam_date = Column(Date, nullable=False)
     duration_min = Column(Integer, default=90)
